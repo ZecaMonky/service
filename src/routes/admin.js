@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { query, get, run } = require('../config/database');
 const { isAdmin } = require('../middleware/auth');
-const { upload, handleUploadError } = require('../middleware/upload');
+const { upload, handleUploadError, getFileUrl } = require('../middleware/upload');
 
 // Главная страница админ-панели
 router.get('/', isAdmin, async (req, res) => {
@@ -66,7 +66,7 @@ router.post('/products', isAdmin, upload.single('image'), handleUploadError, asy
         let imagePath = null;
 
         if (req.file) {
-            imagePath = `/uploads/${req.file.filename}`;
+            imagePath = getFileUrl(req.file.filename);
         }
 
         await run(
@@ -99,8 +99,8 @@ router.post('/products/:id', isAdmin, upload.single('image'), handleUploadError,
 
         // Проверяем, был ли загружен новый файл
         if (req.file) {
-            // Сохраняем относительный путь к изображению
-            imagePath = `/uploads/${req.file.filename}`;
+            // Сохраняем URL изображения
+            imagePath = getFileUrl(req.file.filename);
         } else {
             // Если новый файл не загружен, оставляем старое изображение
             imagePath = existingProduct ? existingProduct.image : null;

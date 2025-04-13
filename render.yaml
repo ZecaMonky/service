@@ -11,5 +11,7 @@ services:
         generateValue: true
       - key: PORT
         value: 10000
+      - key: STORAGE_URL
+        value: https://storage.render.com/your-bucket-name
     healthCheckPath: /
     autoDeploy: true 

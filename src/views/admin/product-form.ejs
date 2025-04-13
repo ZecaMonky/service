@@ -33,13 +33,13 @@
             </div>
 
             <div class="mb-3">
-                <label for="image" class="form-label">Изображение</label>
+                <label for="image" class="form-label">Изображение товара</label>
+                <input type="file" class="form-control" id="image" name="image" accept="image/*">
                 <% if (product && product.image) { %>
-                    <div class="mb-2">
-                        <img src="<%= product.image %>" alt="<%= product.name %>" class="img-thumbnail" style="max-width: 200px;">
+                    <div class="mt-2">
+                        <img src="<%= product.image %>" alt="Текущее изображение" class="img-thumbnail" style="max-width: 200px;">
                     </div>
                 <% } %>
-                <input type="file" class="form-control" id="image" name="image" <%= product ? '' : 'required' %>>
             </div>
         </div>
     </div>

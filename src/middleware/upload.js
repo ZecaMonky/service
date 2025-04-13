@@ -20,7 +20,8 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+        const filename = file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname);
+        cb(null, filename);
     }
 });
 
@@ -57,7 +58,16 @@ const handleUploadError = (err, req, res, next) => {
     next();
 };
 
+// Функция для получения URL файла
+const getFileUrl = (filename) => {
+    if (process.env.NODE_ENV === 'production') {
+        return `${process.env.STORAGE_URL}/${filename}`;
+    }
+    return `/uploads/${filename}`;
+};
+
 module.exports = {
     upload,
-    handleUploadError
+    handleUploadError,
+    getFileUrl
 }; 
