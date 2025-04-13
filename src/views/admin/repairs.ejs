@@ -1,0 +1,79 @@
+<div class="container">
+    <h1 class="mb-4">Управление заявками на ремонт</h1>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Пользователь</th>
+                    <th>Тип устройства</th>
+                    <th>Модель</th>
+                    <th>Проблема</th>
+                    <th>Статус</th>
+                    <th>Дата создания</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% repairs.forEach(repair => { %>
+                    <tr>
+                        <td><%= repair.id %></td>
+                        <td><%= repair.user_name %></td>
+                        <td><%= repair.device_type %></td>
+                        <td><%= repair.device_model %></td>
+                        <td><%= repair.issue %></td>
+                        <td>
+                            <span class="badge <%= 
+                                repair.status === 'pending' ? 'bg-warning' : 
+                                repair.status === 'in_progress' ? 'bg-info' : 
+                                repair.status === 'completed' ? 'bg-success' : 'bg-danger' 
+                            %>">
+                                <%= 
+                                    repair.status === 'pending' ? 'Ожидает' : 
+                                    repair.status === 'in_progress' ? 'В работе' : 
+                                    repair.status === 'completed' ? 'Завершено' : 'Отменено' 
+                                %>
+                            </span>
+                        </td>
+                        <td><%= new Date(repair.created_at).toLocaleDateString() %></td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="/admin/repairs/<%= repair.id %>/edit" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="/admin/repairs/<%= repair.id %>/edit" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    async function deleteRepair(repairId) {
+        if (confirm('Вы уверены, что хотите удалить эту заявку на ремонт?')) {
+            try {
+                const response = await fetch(`/admin/repairs/${repairId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Ошибка при удалении заявки');
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Ошибка при удалении заявки');
+            }
+        }
+    }
+</script> 

@@ -1,0 +1,80 @@
+<div class="container">
+    <h1 class="mb-4">Мои заказы</h1>
+
+    <% if (orders && orders.length > 0) { %>
+        <div class="row">
+            <% orders.forEach(order => { %>
+                <div class="col-md-12 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Заказ #<%= order.id %></h5>
+                                <span class="badge <%= 
+                                    order.status === 'pending' ? 'bg-warning' : 
+                                    order.status === 'processing' ? 'bg-info' : 
+                                    order.status === 'completed' ? 'bg-success' : 'bg-danger' 
+                                %>">
+                                    <%= 
+                                        order.status === 'pending' ? 'Ожидает' : 
+                                        order.status === 'processing' ? 'В обработке' : 
+                                        order.status === 'completed' ? 'Завершен' : 'Отменен' 
+                                    %>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Дата заказа:</strong> <%= new Date(order.created_at).toLocaleString() %></p>
+                                    <p><strong>Адрес доставки:</strong> <%= order.address %></p>
+                                    <p><strong>Телефон:</strong> <%= order.phone %></p>
+                                    <% if (order.comment) { %>
+                                        <p><strong>Комментарий:</strong> <%= order.comment %></p>
+                                    <% } %>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <h4>Сумма: <%= parseFloat(order.total_amount).toFixed(2) %> ₽</h4>
+                                </div>
+                            </div>
+
+                            <% if (order.items && order.items.length > 0) { %>
+                                <div class="table-responsive mt-3">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Товар</th>
+                                                <th>Цена</th>
+                                                <th>Количество</th>
+                                                <th>Сумма</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% order.items.forEach(item => { %>
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <img src="<%= item.image %>" alt="<%= item.name %>" class="img-thumbnail me-2" style="width: 50px;">
+                                                            <%= item.name %>
+                                                        </div>
+                                                    </td>
+                                                    <td><%= parseFloat(item.price).toFixed(2) %> ₽</td>
+                                                    <td><%= item.quantity %></td>
+                                                    <td><%= (parseFloat(item.price) * item.quantity).toFixed(2) %> ₽</td>
+                                                </tr>
+                                            <% }) %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    <% } else { %>
+        <div class="alert alert-info">
+            У вас пока нет заказов. 
+            <a href="/shop" class="alert-link">Перейти в магазин</a>
+        </div>
+    <% } %>
+</div> 

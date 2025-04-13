@@ -1,0 +1,80 @@
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Заявка на ремонт #<%= repair.id %></h1>
+        <a href="/admin/repairs" class="btn btn-outline-secondary">Назад</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Информация о заявке</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Пользователь</dt>
+                        <dd class="col-sm-8"><%= repair.user_name %></dd>
+
+                        <dt class="col-sm-4">Тип устройства</dt>
+                        <dd class="col-sm-8"><%= repair.device_type %></dd>
+
+                        <dt class="col-sm-4">Модель</dt>
+                        <dd class="col-sm-8"><%= repair.device_model %></dd>
+
+                        <dt class="col-sm-4">Проблема</dt>
+                        <dd class="col-sm-8"><%= repair.issue %></dd>
+
+                        <dt class="col-sm-4">Статус</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge <%= 
+                                repair.status === 'pending' ? 'bg-warning' : 
+                                repair.status === 'in_progress' ? 'bg-info' : 
+                                repair.status === 'completed' ? 'bg-success' : 'bg-danger' 
+                            %>">
+                                <%= 
+                                    repair.status === 'pending' ? 'Ожидает' : 
+                                    repair.status === 'in_progress' ? 'В работе' : 
+                                    repair.status === 'completed' ? 'Завершено' : 'Отменено' 
+                                %>
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Дата создания</dt>
+                        <dd class="col-sm-8"><%= new Date(repair.created_at).toLocaleString() %></dd>
+
+                        <dt class="col-sm-4">Дата обновления</dt>
+                        <dd class="col-sm-8"><%= new Date(repair.updated_at).toLocaleString() %></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Изменение статуса</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/admin/repairs/<%= repair.id %>/status" method="POST">
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Новый статус</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="pending" <%= repair.status === 'pending' ? 'selected' : '' %>>Ожидает</option>
+                                <option value="in_progress" <%= repair.status === 'in_progress' ? 'selected' : '' %>>В работе</option>
+                                <option value="completed" <%= repair.status === 'completed' ? 'selected' : '' %>>Завершено</option>
+                                <option value="cancelled" <%= repair.status === 'cancelled' ? 'selected' : '' %>>Отменено</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">Комментарий</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Обновить статус</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

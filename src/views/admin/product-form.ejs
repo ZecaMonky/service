@@ -1,0 +1,54 @@
+<div class="container">
+    <h1 class="mb-4"><%= product ? 'Редактирование товара' : 'Добавление товара' %></h1>
+
+<form action="<%= product ? `/admin/products/${product.id}` : '/admin/products' %>" method="POST" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="name" class="form-label">Название</label>
+                <input type="text" class="form-control" id="name" name="name" value="<%= product ? product.name : '' %>" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="category" class="form-label">Категория</label>
+                <input type="text" class="form-control" id="category" name="category" value="<%= product ? product.category : '' %>" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="price" class="form-label">Цена</label>
+                <input type="number" class="form-control" id="price" name="price" value="<%= product ? product.price : '' %>" step="0.01" min="0" required>
+                <small class="text-muted">Используйте точку для разделения копеек (например: 199.99)</small>
+            </div>
+
+            <div class="mb-3">
+                <label for="stock" class="form-label">Количество</label>
+                <input type="number" class="form-control" id="stock" name="stock" value="<%= product ? product.stock : '0' %>" required>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="description" class="form-label">Описание</label>
+                <textarea class="form-control" id="description" name="description" rows="4"><%= product ? product.description : '' %></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="image" class="form-label">Изображение</label>
+                <% if (product && product.image) { %>
+                    <div class="mb-2">
+                        <img src="<%= product.image %>" alt="<%= product.name %>" class="img-thumbnail" style="max-width: 200px;">
+                    </div>
+                <% } %>
+                <input type="file" class="form-control" id="image" name="image" <%= product ? '' : 'required' %>>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+        <a href="/admin/products" class="btn btn-outline-secondary">Назад</a>
+        <button type="submit" class="btn btn-primary">
+            <%= product ? 'Сохранить изменения' : 'Добавить товар' %>
+        </button>
+    </div>
+</form>
+</div> 

@@ -1,0 +1,143 @@
+<!-- Главный баннер -->
+<div class="hero bg-primary text-white py-5 mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="display-4 mb-4">Профессиональный ремонт техники</h1>
+                <p class="lead mb-4">Быстро, качественно и с гарантией. Мы ремонтируем любую электронику в кратчайшие сроки.</p>
+                <a href="/repair" class="btn btn-light btn-lg hero-button">
+                    <i class="fas fa-tools me-2"></i>Заказать ремонт
+                </a>
+            </div>
+            <div class="col-md-6">
+                <img src="/images/hero-image.jpg" alt="Ремонт техники" class="img-fluid rounded">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Преимущества -->
+<section class="features py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Почему выбирают нас</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-clock fa-3x text-primary mb-3"></i>
+                        <h3 class="card-title h5">Быстрый ремонт</h3>
+                        <p class="card-text">Среднее время ремонта - 1-2 дня</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                        <h3 class="card-title h5">Гарантия качества</h3>
+                        <p class="card-text">Гарантия на все виды работ</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-tools fa-3x text-primary mb-3"></i>
+                        <h3 class="card-title h5">Оригинальные запчасти</h3>
+                        <p class="card-text">Используем только качественные комплектующие</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Популярные товары -->
+<section class="products py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Популярные товары</h2>
+        <div class="row">
+            <% products.forEach(product => { %>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="<%= product.image %>" class="card-img-top" alt="<%= product.name %>">
+                        <div class="card-body">
+                            <h3 class="card-title h5"><%= product.name %></h3>
+                            <p class="card-text"><%= product.description %></p>
+                            <p class="card-text"><strong>Цена: <%= product.price %> ₽</strong></p>
+                            <a href="/shop/product/<%= product.id %>" class="btn btn-primary">Подробнее</a>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+</section>
+
+<!-- Форма заказа ремонта -->
+<section class="repair-form py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-primary text-white p-4">
+                        <h2 class="text-center mb-0">Заказать ремонт</h2>
+                    </div>
+                    <div class="card-body p-4">
+                        <form action="/repair" method="POST">
+                            <div class="mb-3">
+                                <label for="deviceType" class="form-label">Тип устройства</label>
+                                <select class="form-select form-control-lg" id="deviceType" name="deviceType" required>
+                                    <option value="">Выберите тип устройства</option>
+                                    <option value="phone">Смартфон</option>
+                                    <option value="tablet">Планшет</option>
+                                    <option value="laptop">Ноутбук</option>
+                                    <option value="desktop">Компьютер</option>
+                                    <option value="other">Другое</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="deviceModel" class="form-label">Модель устройства</label>
+                                <input type="text" class="form-control form-control-lg" id="deviceModel" name="deviceModel" placeholder="Например: iPhone 12 Pro">
+                            </div>
+                            <div class="mb-3">
+                                <label for="issue" class="form-label">Описание проблемы</label>
+                                <textarea class="form-control form-control-lg" id="issue" name="issue" rows="3" placeholder="Опишите проблему с вашим устройством" required></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label for="contactPhone" class="form-label">Контактный телефон</label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                    <input type="tel" class="form-control" id="contactPhone" name="contactPhone" placeholder="+7 (XXX) XXX-XX-XX" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg w-100 py-3">
+                                <i class="fas fa-paper-plane me-2"></i>Отправить заявку
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Карта -->
+<section class="map py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Как нас найти</h2>
+        <div class="row">
+            <div class="col-12">
+                <div class="ratio ratio-16x9">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2701.1234567890123!2d52.12345678901234!3d52.12345678901234!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTLCsDA3JzI0LjQiTiA1MsKwMDcnMjQuNCJF!5e0!3m2!1sru!2sru!4v1234567890!5m2!1sru!2sru" 
+                            width="100%" 
+                            height="450" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</section> 

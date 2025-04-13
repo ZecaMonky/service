@@ -1,0 +1,71 @@
+<div class="row">
+    <div class="col-md-3">
+        <!-- Фильтры -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Фильтры</h5>
+                <form action="/shop" method="GET">
+                    <div class="mb-3">
+                        <label class="form-label">Категория</label>
+                        <select name="category" class="form-select">
+                            <option value="">Все категории</option>
+                            <% categories.forEach(category => { %>
+                                <option value="<%= category %>" <%= selectedCategory === category ? 'selected' : '' %>>
+                                    <%= category %>
+                                </option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Цена</label>
+                        <div class="input-group">
+                            <input type="number" name="minPrice" class="form-control" placeholder="От" value="<%= minPrice %>">
+                            <input type="number" name="maxPrice" class="form-control" placeholder="До" value="<%= maxPrice %>">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Применить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <!-- Сортировка -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Каталог товаров</h2>
+            <select class="form-select w-auto" onchange="window.location.href=this.value">
+                <option value="/shop?sort=price_asc" <%= sort === 'price_asc' ? 'selected' : '' %>>По цене (возр.)</option>
+                <option value="/shop?sort=price_desc" <%= sort === 'price_desc' ? 'selected' : '' %>>По цене (убыв.)</option>
+                <option value="/shop?sort=name_asc" <%= sort === 'name_asc' ? 'selected' : '' %>>По названию (А-Я)</option>
+                <option value="/shop?sort=name_desc" <%= sort === 'name_desc' ? 'selected' : '' %>>По названию (Я-А)</option>
+            </select>
+        </div>
+        <!-- Товары -->
+        <div class="row">
+            <% products.forEach(product => { %>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="<%= product.image %>" class="card-img-top" alt="<%= product.name %>">
+                        <div class="card-body">
+                            <h3 class="card-title h5"><%= product.name %></h3>
+                            <p class="card-text"><%= product.description %></p>
+                            <p class="card-text"><strong>Цена: <%= product.price %> ₽</strong></p>
+                            <a href="/shop/product/<%= product.id %>" class="btn btn-primary">Подробнее</a>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+        <!-- Пагинация -->
+        <% if (totalPages > 1) { %>
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <% for(let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                            <a class="page-link" href="/shop?page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+        <% } %>
+    </div>
+</div> 

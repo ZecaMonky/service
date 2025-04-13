@@ -1,0 +1,47 @@
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="text-center mb-4">Статус заявки #<%= request.id %></h2>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5>Информация о заявке:</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <strong>Тип устройства:</strong> <%= request.device_type %>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Модель:</strong> <%= request.device_model %>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Проблема:</strong> <%= request.issue %>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Контактный телефон:</strong> <%= request.contact_phone %>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Статус:</strong> 
+                                <span class="badge bg-<%= request.status === 'pending' ? 'warning' : 
+                                                        request.status === 'in_progress' ? 'info' :
+                                                        request.status === 'completed' ? 'success' : 'secondary' %>">
+                                    <%= request.status === 'pending' ? 'Ожидает обработки' :
+                                       request.status === 'in_progress' ? 'В работе' :
+                                       request.status === 'completed' ? 'Завершено' : 'Неизвестно' %>
+                                </span>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Дата создания:</strong> <%= new Date(request.created_at).toLocaleString() %>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <a href="/repair/history" class="btn btn-secondary">К истории заявок</a>
+                    <a href="/repair" class="btn btn-primary">Создать новую заявку</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

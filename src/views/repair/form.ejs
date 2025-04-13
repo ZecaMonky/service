@@ -1,0 +1,42 @@
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="text-center mb-4">Заявка на ремонт</h2>
+                
+                <form action="/repair" method="POST">
+                    <div class="mb-3">
+                        <label for="deviceType" class="form-label">Тип устройства</label>
+                        <select class="form-select" id="deviceType" name="deviceType" required>
+                            <option value="">Выберите тип устройства</option>
+                            <option value="phone">Смартфон</option>
+                            <option value="tablet">Планшет</option>
+                            <option value="laptop">Ноутбук</option>
+                            <option value="desktop">Компьютер</option>
+                            <option value="other">Другое</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="deviceModel" class="form-label">Модель устройства</label>
+                        <input type="text" class="form-control" id="deviceModel" name="deviceModel" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="issue" class="form-label">Описание проблемы</label>
+                        <textarea class="form-control" id="issue" name="issue" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="contactPhone" class="form-label">Контактный телефон</label>
+                        <input type="tel" class="form-control" id="contactPhone" name="contactPhone" required>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Отправить заявку</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

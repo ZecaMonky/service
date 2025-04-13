@@ -1,0 +1,142 @@
+<div class="container">
+    <h1 class="mb-4">Панель администратора</h1>
+
+    <!-- Статистика -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Пользователи</h5>
+                    <p class="card-text display-6"><%= users.length %></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Товары</h5>
+                    <p class="card-text display-6"><%= products.length %></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Заявки на ремонт</h5>
+                    <p class="card-text display-6"><%= repairRequests.length %></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Заказы</h5>
+                    <p class="card-text display-6"><%= orders.length %></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Последние заявки на ремонт -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Последние заявки на ремонт</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Тип устройства</th>
+                            <th>Модель</th>
+                            <th>Статус</th>
+                            <th>Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% repairRequests.forEach(request => { %>
+                            <tr>
+                                <td><%= request.id %></td>
+                                <td><%= request.device_type %></td>
+                                <td><%= request.device_model %></td>
+                                <td>
+                                    <span class="badge bg-<%= 
+                                        request.status === 'pending' ? 'warning' : 
+                                        request.status === 'processing' ? 'info' : 
+                                        request.status === 'completed' ? 'success' : 'danger' 
+                                    %>">
+                                        <%= request.status %>
+                                    </span>
+                                </td>
+                                <td><%= new Date(request.created_at).toLocaleDateString() %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Последние заказы -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Последние заказы</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Сумма</th>
+                            <th>Статус</th>
+                            <th>Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% orders.forEach(order => { %>
+                            <tr>
+                                <td><%= order.id %></td>
+                                <td><%= order.total_amount %> ₽</td>
+                                <td>
+                                    <span class="badge bg-<%= 
+                                        order.status === 'pending' ? 'warning' : 
+                                        order.status === 'processing' ? 'info' : 
+                                        order.status === 'completed' ? 'success' : 'danger' 
+                                    %>">
+                                        <%= order.status %>
+                                    </span>
+                                </td>
+                                <td><%= new Date(order.created_at).toLocaleDateString() %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Быстрые действия -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Быстрые действия</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <a href="/admin/users" class="btn btn-primary w-100 mb-2">Управление пользователями</a>
+                </div>
+                <div class="col-md-3">
+                    <a href="/admin/products" class="btn btn-success w-100 mb-2">Управление товарами</a>
+                </div>
+                <div class="col-md-3">
+                    <a href="/admin/repairs" class="btn btn-warning w-100 mb-2">Управление заявками</a>
+                </div>
+                <div class="col-md-3">
+                    <a href="/admin/orders" class="btn btn-info w-100 mb-2">Управление заказами</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

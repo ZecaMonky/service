@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: service-center
+    env: node
+    buildCommand: npm install
+    startCommand: node src/app.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: PORT
+        value: 10000
+    healthCheckPath: /
+    autoDeploy: true 

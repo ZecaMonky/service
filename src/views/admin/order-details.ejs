@@ -1,0 +1,110 @@
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Заказ #<%= order.id %></h1>
+        <a href="/admin/orders" class="btn btn-outline-secondary">Назад</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Информация о заказе</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Пользователь</dt>
+                        <dd class="col-sm-8"><%= order.user_name %></dd>
+
+                        <dt class="col-sm-4">Сумма</dt>
+                        <dd class="col-sm-8"><%= parseFloat(order.total_amount).toFixed(2) %> ₽</dd>
+
+                        <dt class="col-sm-4">Статус</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge <%= 
+                                order.status === 'pending' ? 'bg-warning' : 
+                                order.status === 'processing' ? 'bg-info' : 
+                                order.status === 'completed' ? 'bg-success' : 'bg-danger' 
+                            %>">
+                                <%= 
+                                    order.status === 'pending' ? 'Ожидает' : 
+                                    order.status === 'processing' ? 'В обработке' : 
+                                    order.status === 'completed' ? 'Завершен' : 'Отменен' 
+                                %>
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Дата создания</dt>
+                        <dd class="col-sm-8"><%= new Date(order.created_at).toLocaleString() %></dd>
+
+                        <dt class="col-sm-4">Дата обновления</dt>
+                        <dd class="col-sm-8"><%= new Date(order.updated_at).toLocaleString() %></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Товары в заказе</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Товар</th>
+                                    <th>Количество</th>
+                                    <th>Цена</th>
+                                    <th>Сумма</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% order.items.forEach(item => { %>
+                                    <tr>
+                                        <td><%= item.product_name %></td>
+                                        <td><%= item.quantity %></td>
+                                        <td><%= parseFloat(item.price).toFixed(2) %> ₽</td>
+                                        <td><%= (parseFloat(item.price) * item.quantity).toFixed(2) %> ₽</td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Итого:</strong></td>
+                                    <td><strong><%= parseFloat(order.total_amount).toFixed(2) %> ₽</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Изменение статуса</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/admin/orders/<%= order.id %>?_method=PUT" method="POST">
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Новый статус</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Ожидает</option>
+                                <option value="processing" <%= order.status === 'processing' ? 'selected' : '' %>>В обработке</option>
+                                <option value="completed" <%= order.status === 'completed' ? 'selected' : '' %>>Завершен</option>
+                                <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Отменен</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">Комментарий</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Обновить статус</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
