@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
         
         res.render('index', {
             title: 'Главная',
-            products: products || [], // Убедимся, что products всегда массив
+            products: products.rows || [], // Передаем массив товаров
             user: req.session.user
         });
     } catch (error) {
