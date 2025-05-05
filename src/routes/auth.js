@@ -64,27 +64,33 @@ router.get('/register', (req, res) => {
 });
 
 // Обработка регистрации
-router.post('/register', async (req, res) => {
+router.post('/register', validateUserData, async (req, res) => {
     try {
-        const { name, email, password } = req.body;
-        
-        // Проверяем, существует ли пользователь
-        const existingUser = await get('SELECT * FROM users WHERE email = $1', [email]);
-        if (existingUser) {
+        const { name, email, password, confirmPassword } = req.body;
+
+        // Проверка совпадения паролей
+        if (password !== confirmPassword) {
+            req.flash('error', 'Пароли не совпадают');
+            return res.redirect('/auth/register');
+        }
+
+        // Проверка существования пользователя
+        const [existingUser] = await query('SELECT * FROM users WHERE email = ?', [email]);
+        if (existingUser.length > 0) {
             req.flash('error', 'Пользователь с таким email уже существует');
             return res.redirect('/auth/register');
         }
 
-        // Хешируем пароль
+        // Хеширование пароля
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Создаем нового пользователя
+        // Создание пользователя
         await run(
             'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id',
             [name, email, hashedPassword]
         );
 
-        req.flash('success', 'Регистрация успешна. Теперь вы можете войти.');
+        req.flash('success', 'Регистрация успешно завершена. Теперь вы можете войти.');
         res.redirect('/auth/login');
     } catch (error) {
         console.error('Ошибка при регистрации:', error);
