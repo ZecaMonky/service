@@ -40,9 +40,14 @@ router.post('/login', async (req, res) => {
             email: user.email,
             role: user.role
         };
-        
-        req.flash('success', `Добро пожаловать, ${user.name}!`);
-        res.redirect('/');
+        console.log('После логина, req.session:', req.session);
+        req.session.save((err) => {
+            if (err) {
+                console.error('Ошибка при сохранении сессии:', err);
+            }
+            req.flash('success', `Добро пожаловать, ${user.name}!`);
+            res.redirect('/');
+        });
     } catch (error) {
         console.error('Ошибка при входе:', error);
         req.flash('error', 'Произошла ошибка при входе в систему');

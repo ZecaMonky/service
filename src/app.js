@@ -8,6 +8,7 @@ const { pool } = require('./config/database');
 const viewVariables = require('./middleware/view-variables');
 
 const app = express();
+app.set('trust proxy', 1);
 
 // Настройка шаблонизатора
 app.set('view engine', 'ejs');
