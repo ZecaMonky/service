@@ -8,10 +8,12 @@ console.log('Cloud Name:', process.env.CLOUDINARY_CLOUD_NAME);
 console.log('API Key:', process.env.CLOUDINARY_API_KEY);
 console.log('API Secret:', process.env.CLOUDINARY_API_SECRET ? '***' : 'Not set');
 
+// Настройка Cloudinary
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+    secure: true // Используем HTTPS
 });
 
 // Временная конфигурация для отладки
@@ -20,15 +22,24 @@ const storage = new CloudinaryStorage({
     params: {
         folder: 'products',
         allowed_formats: ['jpg', 'png', 'jpeg', 'gif'],
-        transformation: [{ width: 800, height: 800, crop: 'limit' }]
+        transformation: [{ width: 800, height: 800, crop: 'limit' }],
+        resource_type: 'auto' // Автоматическое определение типа ресурса
     }
 });
 
-// Создаем multer middleware
+// Создаем multer middleware с обработкой ошибок
 const upload = multer({ 
     storage,
     limits: {
         fileSize: 5 * 1024 * 1024 // 5MB limit
+    },
+    fileFilter: (req, file, cb) => {
+        // Проверяем тип файла
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Разрешены только изображения!'), false);
+        }
     }
 });
 
@@ -44,7 +55,13 @@ const handleUploadError = (err, req, res, next) => {
     console.error('=== Upload Error ===');
     console.error('Error details:', err);
     if (err) {
-        req.flash('error', err.message);
+        if (err.message === 'File too large') {
+            req.flash('error', 'Размер файла превышает 5MB');
+        } else if (err.message === 'Разрешены только изображения!') {
+            req.flash('error', err.message);
+        } else {
+            req.flash('error', 'Ошибка при загрузке файла: ' + err.message);
+        }
     }
     next();
 };
