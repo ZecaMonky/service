@@ -80,7 +80,7 @@ router.post('/register', async (req, res) => {
 
         // Создаем нового пользователя
         await run(
-            'INSERT INTO users (name, email, password) VALUES ($1, $2, $3)',
+            'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id',
             [name, email, hashedPassword]
         );
 

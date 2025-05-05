@@ -69,7 +69,7 @@ router.post('/products', isAdmin, upload.single('image'), handleUploadError, asy
         }
 
         await run(
-            'INSERT INTO products (name, category, description, price, stock, image) VALUES ($1, $2, $3, $4, $5, $6)',
+            'INSERT INTO products (name, category, description, price, stock, image) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
             [name, category, description, price, stock, imagePath]
         );
         req.flash('success', 'Товар успешно добавлен');

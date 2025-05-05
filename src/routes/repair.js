@@ -19,12 +19,12 @@ router.post('/', isAuthenticated, async (req, res) => {
         const { deviceType, deviceModel, issue, contactPhone } = req.body;
         
         const result = await run(
-            'INSERT INTO repair_requests (user_id, device_type, device_model, issue, contact_phone) VALUES ($1, $2, $3, $4, $5)',
+            'INSERT INTO repair_requests (user_id, device_type, device_model, issue, contact_phone) VALUES ($1, $2, $3, $4, $5) RETURNING id',
             [req.session.user.id, deviceType, deviceModel, issue, contactPhone]
         );
         
         req.flash('success', 'Заявка успешно отправлена!');
-        res.redirect(`/repair/status/${result.lastID}`);
+        res.redirect(`/repair/status/${result.rows[0].id}`);
     } catch (error) {
         console.error('Ошибка при отправке заявки:', error);
         req.flash('error', 'Произошла ошибка при отправке заявки');
