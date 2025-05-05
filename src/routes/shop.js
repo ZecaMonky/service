@@ -12,20 +12,23 @@ router.get('/cart', isAuthenticated, async (req, res) => {
         if (cart.length > 0) {
             const productIds = cart.map(item => item.product_id);
             const placeholders = productIds.map((_, i) => `$${i + 1}`).join(',');
-            const products = await query(
+            const result = await query(
                 `SELECT * FROM products WHERE id IN (${placeholders})`,
                 productIds
             );
+
+            // Получаем массив товаров из результата запроса
+            const products = result.rows || [];
 
             // Обновляем данные в корзине
             const updatedCart = cart.map(item => {
                 const product = products.find(p => p.id === item.product_id);
                 return {
                     ...item,
-                    name: product.name,
-                    price: product.price,
-                    image: product.image,
-                    category: product.category
+                    name: product?.name || item.name,
+                    price: product?.price || item.price,
+                    image: product?.image || item.image,
+                    category: product?.category || item.category
                 };
             });
             req.session.cart = updatedCart;
