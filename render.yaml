@@ -13,5 +13,11 @@ services:
         value: 10000
       - key: STORAGE_URL
         value: https://storage.render.com/your-bucket-name
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
     healthCheckPath: /
     autoDeploy: true 
