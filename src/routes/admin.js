@@ -76,7 +76,7 @@ router.post('/products', isAdmin, upload.single('image'), handleUploadError, asy
         res.redirect('/admin/products');
     } catch (error) {
         console.error('Ошибка при добавлении товара:', error);
-        req.flash('error', 'Произошла ошибка при добавлении товара');
+        req.flash('error', 'Произошла ошибка при добавлении товара: ' + error.message);
         res.redirect('/admin/products');
     }
 });
@@ -109,7 +109,7 @@ router.post('/products/:id', isAdmin, upload.single('image'), handleUploadError,
         res.redirect('/admin/products');
     } catch (error) {
         console.error('Ошибка при обновлении товара:', error);
-        req.flash('error', 'Ошибка при обновлении товара');
+        req.flash('error', 'Ошибка при обновлении товара: ' + error.message);
         res.redirect('/admin/products');
     }
 });
