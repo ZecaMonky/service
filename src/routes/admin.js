@@ -401,4 +401,34 @@ router.get('/orders/:id/edit', isAdmin, async (req, res) => {
     }
 });
 
+// Обновление телефона в заявке на ремонт
+router.put('/repairs/:id/phone', isAdmin, async (req, res) => {
+    try {
+        const { phone } = req.body;
+        const repairId = req.params.id;
+
+        // Проверяем формат телефона
+        const cleanPhone = phone.replace(/\D/g, '');
+        if (cleanPhone.length !== 11 || !/^[78]/.test(cleanPhone)) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Неверный формат номера телефона' 
+            });
+        }
+
+        await run(
+            'UPDATE repair_requests SET contact_phone = $1 WHERE id = $2',
+            [phone, repairId]
+        );
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Ошибка при обновлении телефона:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Ошибка при обновлении телефона' 
+        });
+    }
+});
+
 module.exports = router; 

@@ -10,6 +10,7 @@
                     <th>Тип устройства</th>
                     <th>Модель</th>
                     <th>Проблема</th>
+                    <th>Телефон</th>
                     <th>Статус</th>
                     <th>Дата создания</th>
                     <th>Действия</th>
@@ -23,6 +24,13 @@
                         <td><%= repair.device_type %></td>
                         <td><%= repair.device_model %></td>
                         <td><%= repair.issue %></td>
+                        <td>
+                            <input type="tel" class="form-control form-control-sm phone-input" 
+                                   value="<%= repair.contact_phone %>" 
+                                   pattern="^(\+7|8)[0-9]{10}$"
+                                   data-original="<%= repair.contact_phone %>"
+                                   data-id="<%= repair.id %>">
+                        </td>
                         <td>
                             <span class="badge <%= 
                                 repair.status === 'pending' ? 'bg-warning' : 
@@ -76,4 +84,72 @@
             }
         }
     }
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Функция форматирования номера телефона
+    function formatPhoneNumber(input) {
+        let value = input.value.replace(/\D/g, '');
+        
+        if (value.length > 0) {
+            if (value[0] === '8') {
+                value = '7' + value.slice(1);
+            }
+            if (value[0] !== '7') {
+                value = '7' + value;
+            }
+            value = '+' + value;
+        }
+        
+        input.value = value;
+    }
+
+    // Обработчик ввода телефона для всех полей ввода телефона
+    document.querySelectorAll('.phone-input').forEach(input => {
+        // Форматируем начальное значение
+        formatPhoneNumber(input);
+
+        // Обработчик ввода
+        input.addEventListener('input', function(e) {
+            formatPhoneNumber(this);
+        });
+
+        // Обработчик потери фокуса
+        input.addEventListener('blur', function(e) {
+            const phone = this.value.replace(/\D/g, '');
+            
+            if (phone.length !== 11 || !/^[78]/.test(phone)) {
+                this.value = this.dataset.original; // Возвращаем исходное значение
+                alert('Пожалуйста, введите корректный номер телефона');
+                return;
+            }
+
+            // Если номер изменился, отправляем на сервер
+            if (this.value !== this.dataset.original) {
+                fetch(`/admin/repairs/${this.dataset.id}/phone`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        phone: this.value
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.dataset.original = this.value;
+                    } else {
+                        this.value = this.dataset.original;
+                        alert('Ошибка при обновлении номера телефона');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    this.value = this.dataset.original;
+                    alert('Ошибка при обновлении номера телефона');
+                });
+            }
+        });
+    });
+});
 </script> 
