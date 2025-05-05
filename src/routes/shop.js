@@ -100,7 +100,7 @@ router.get('/', async (req, res) => {
         
         res.render('shop/catalog', {
             title: 'Каталог товаров',
-            products: products || [],
+            products: products.rows || [],
             categories: categories.rows.map(c => c.category) || [],
             selectedCategory: category,
             minPrice,
