@@ -19,7 +19,7 @@ router.post('/', isAuthenticated, async (req, res) => {
         const { deviceType, deviceModel, issue, contactPhone } = req.body;
         
         const result = await run(
-            'INSERT INTO repair_requests (user_id, device_type, device_model, issue, contact_phone) VALUES (?, ?, ?, ?, ?)',
+            'INSERT INTO repair_requests (user_id, device_type, device_model, issue, contact_phone) VALUES ($1, $2, $3, $4, $5)',
             [req.session.user.id, deviceType, deviceModel, issue, contactPhone]
         );
         
@@ -36,7 +36,7 @@ router.post('/', isAuthenticated, async (req, res) => {
 router.get('/status/:id', isAuthenticated, async (req, res) => {
     try {
         const request = await get(
-            'SELECT * FROM repair_requests WHERE id = ? AND user_id = ?',
+            'SELECT * FROM repair_requests WHERE id = $1 AND user_id = $2',
             [req.params.id, req.session.user.id]
         );
 
@@ -63,7 +63,7 @@ router.get('/status/:id', isAuthenticated, async (req, res) => {
 router.get('/history', isAuthenticated, async (req, res) => {
     try {
         const requests = await query(
-            'SELECT * FROM repair_requests WHERE user_id = ? ORDER BY created_at DESC',
+            'SELECT * FROM repair_requests WHERE user_id = $1 ORDER BY created_at DESC',
             [req.session.user.id]
         );
 

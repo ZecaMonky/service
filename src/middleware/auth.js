@@ -13,7 +13,7 @@ const isAuthenticated = (req, res, next) => {
 // Middleware для проверки прав администратора
 const isAdmin = async (req, res, next) => {
     if (req.session.user) {
-        const user = await get('SELECT role FROM users WHERE id = ?', [req.session.user.id]);
+        const user = await get('SELECT role FROM users WHERE id = $1', [req.session.user.id]);
         if (user && user.role === 'admin') {
             next();
         } else {

@@ -11,7 +11,7 @@ router.get('/cart', isAuthenticated, async (req, res) => {
         // Получаем актуальные данные о товарах
         if (cart.length > 0) {
             const productIds = cart.map(item => item.product_id);
-            const placeholders = productIds.map(() => '?').join(',');
+            const placeholders = productIds.map((_, i) => `$${i + 1}`).join(',');
             const products = await query(
                 `SELECT * FROM products WHERE id IN (${placeholders})`,
                 productIds
@@ -54,17 +54,17 @@ router.get('/', async (req, res) => {
         const params = [];
         
         if (category) {
-            queryStr += ' AND category = ?';
+            queryStr += ` AND category = $${params.length + 1}`;
             params.push(category);
         }
         
         if (minPrice) {
-            queryStr += ' AND price >= ?';
+            queryStr += ` AND price >= $${params.length + 1}`;
             params.push(minPrice);
         }
         
         if (maxPrice) {
-            queryStr += ' AND price <= ?';
+            queryStr += ` AND price <= $${params.length + 1}`;
             params.push(maxPrice);
         }
         
@@ -92,7 +92,7 @@ router.get('/', async (req, res) => {
         const totalPages = Math.ceil(totalItems / itemsPerPage);
 
         // Добавляем пагинацию к основному запросу
-        queryStr += ` LIMIT ? OFFSET ?`;
+        queryStr += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
         params.push(itemsPerPage, offset);
         
         const products = await query(queryStr, params);
@@ -120,7 +120,7 @@ router.get('/', async (req, res) => {
 // Страница товара
 router.get('/product/:id', async (req, res) => {
     try {
-        const product = await get('SELECT * FROM products WHERE id = ?', [req.params.id]);
+        const product = await get('SELECT * FROM products WHERE id = $1', [req.params.id]);
         
         if (!product) {
             req.flash('error', 'Товар не найден');
@@ -143,7 +143,7 @@ router.get('/product/:id', async (req, res) => {
 router.post('/cart/add', isAuthenticated, async (req, res) => {
     try {
         const { productId, quantity } = req.body;
-        const product = await get('SELECT * FROM products WHERE id = ?', [productId]);
+        const product = await get('SELECT * FROM products WHERE id = $1', [productId]);
         
         if (!product) {
             req.flash('error', 'Товар не найден');
@@ -249,7 +249,7 @@ router.get('/checkout', isAuthenticated, async (req, res) => {
 
         // Получаем актуальные данные о товарах
         const productIds = cart.map(item => item.product_id);
-        const placeholders = productIds.map(() => '?').join(',');
+        const placeholders = productIds.map((_, i) => `$${i + 1}`).join(',');
         const products = await query(
             `SELECT * FROM products WHERE id IN (${placeholders})`,
             productIds
@@ -341,14 +341,14 @@ router.get('/order/:id', async (req, res) => {
     }
     
     try {
-        const order = await get('SELECT * FROM shop_orders WHERE id = ? AND user_id = ?',
+        const order = await get('SELECT * FROM shop_orders WHERE id = $1 AND user_id = $2',
             [req.params.id, req.session.user.id]);
             
         if (!order) {
             return res.redirect('/shop');
         }
         
-        const items = await query('SELECT oi.*, p.name FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?',
+        const items = await query('SELECT oi.*, p.name FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = $1',
             [order.id]);
         
         res.render('shop/order', {
@@ -369,13 +369,13 @@ router.get('/orders', isAuthenticated, async (req, res) => {
     try {
         const orders = await query(`
             SELECT o.*, 
-                   GROUP_CONCAT(p.name) as product_names,
-                   GROUP_CONCAT(oi.quantity) as quantities,
-                   GROUP_CONCAT(oi.price) as prices
+                   STRING_AGG(p.name, ',') as product_names,
+                   STRING_AGG(oi.quantity::text, ',') as quantities,
+                   STRING_AGG(oi.price::text, ',') as prices
             FROM shop_orders o
             LEFT JOIN order_items oi ON o.id = oi.order_id
             LEFT JOIN products p ON oi.product_id = p.id
-            WHERE o.user_id = ?
+            WHERE o.user_id = $1
             GROUP BY o.id
             ORDER BY o.created_at DESC
         `, [req.session.user.id]);

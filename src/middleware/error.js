@@ -6,7 +6,7 @@ const errorHandler = (err, req, res, next) => {
     
     // Логируем ошибку в базу данных
     run(
-        'INSERT INTO error_logs (message, stack, user_id, created_at) VALUES (?, ?, ?, ?)',
+        'INSERT INTO error_logs (message, stack, user_id, created_at) VALUES ($1, $2, $3, $4)',
         [err.message, err.stack, req.session.user ? req.session.user.id : null, new Date()]
     ).catch(console.error);
 

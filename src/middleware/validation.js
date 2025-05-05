@@ -17,7 +17,7 @@ const validateUserData = async (req, res, next) => {
     }
 
     // Проверка существования email
-    const existingUser = await get('SELECT * FROM users WHERE email = ?', [email]);
+    const existingUser = await get('SELECT * FROM users WHERE email = $1', [email]);
     if (existingUser) {
         req.flash('error', 'Пользователь с таким email уже существует');
         return res.redirect('/auth/register');
