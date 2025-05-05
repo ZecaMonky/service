@@ -8,36 +8,13 @@ if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !pr
     throw new Error('Необходимо настроить CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY и CLOUDINARY_API_SECRET');
 }
 
-// Расширенное логирование конфигурации
-console.log('=== Cloudinary Configuration ===');
-console.log('Cloud Name:', process.env.CLOUDINARY_CLOUD_NAME);
-console.log('API Key:', process.env.CLOUDINARY_API_KEY);
-console.log('API Secret:', process.env.CLOUDINARY_API_SECRET ? '***' : 'Not set');
-
-// Настройка Cloudinary с дополнительными параметрами
-const config = {
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME.trim(),
-    api_key: process.env.CLOUDINARY_API_KEY.trim(),
-    api_secret: process.env.CLOUDINARY_API_SECRET.trim(),
+// Настройка Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
     secure: true
-};
-
-console.log('=== Cloudinary Config Object ===');
-console.log(JSON.stringify(config, null, 2));
-
-cloudinary.config(config);
-
-// Проверка конфигурации Cloudinary
-cloudinary.api.ping()
-    .then(() => {
-        console.log('Cloudinary connection successful');
-        console.log('Current cloud name:', cloudinary.config().cloud_name);
-    })
-    .catch(err => {
-        console.error('ОШИБКА подключения к Cloudinary:', err);
-        console.error('Текущая конфигурация:', cloudinary.config());
-        throw err;
-    });
+});
 
 // Конфигурация хранилища
 const storage = new CloudinaryStorage({
@@ -57,7 +34,6 @@ const upload = multer({
         fileSize: 5 * 1024 * 1024 // 5MB limit
     },
     fileFilter: (req, file, cb) => {
-        // Проверяем тип файла
         if (file.mimetype.startsWith('image/')) {
             cb(null, true);
         } else {
@@ -68,16 +44,10 @@ const upload = multer({
 
 // Middleware для логирования
 const logUpload = (req, res, next) => {
-    console.log('=== Upload Middleware ===');
-    console.log('Request headers:', req.headers);
-    console.log('Content-Type:', req.headers['content-type']);
     next();
 };
 
 const handleUploadError = (err, req, res, next) => {
-    console.error('=== Upload Error ===');
-    console.error('Error details:', err);
-    
     if (err) {
         let errorMessage = 'Ошибка при загрузке файла';
         
@@ -86,7 +56,7 @@ const handleUploadError = (err, req, res, next) => {
         } else if (err.message === 'Разрешены только изображения!') {
             errorMessage = err.message;
         } else if (err.http_code === 401) {
-            errorMessage = 'Ошибка аутентификации в Cloudinary. Проверьте настройки API.';
+            errorMessage = 'Ошибка аутентификации в Cloudinary';
         } else if (err.http_code === 400) {
             errorMessage = 'Некорректный запрос к Cloudinary';
         }
@@ -101,7 +71,6 @@ const getFileUrl = (file) => {
         console.error('Файл не был загружен');
         return null;
     }
-    console.log('Getting file URL for:', file);
     return file.path;
 };
 
