@@ -63,6 +63,12 @@ app.use(flash());
 // Добавляем переменные представления
 app.use(viewVariables);
 
+// Middleware для отладки сессии
+app.use((req, res, next) => {
+    console.log('Session:', req.session);
+    next();
+});
+
 // Роуты
 app.use('/', require('./routes/main'));
 app.use('/auth', require('./routes/auth'));

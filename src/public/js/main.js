@@ -28,7 +28,13 @@ function addToCart(productId, quantity = 1) {
 // Функция для обновления счетчика корзины
 function updateCartCounter() {
     fetch('/shop/cart/count')
-        .then(response => response.json())
+        .then(response => {
+            // Отладка: выводим тип ответа и часть текста
+            response.clone().text().then(txt => {
+                console.log('Ответ от /shop/cart/count:', txt.slice(0, 200));
+            });
+            return response.json();
+        })
         .then(data => {
             const counter = document.getElementById('cartCounter');
             if (counter) {
@@ -41,7 +47,7 @@ function updateCartCounter() {
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Ошибка при обработке ответа /shop/cart/count:', error);
         });
 }
 
