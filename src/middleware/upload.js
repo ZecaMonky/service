@@ -21,9 +21,7 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'products',
-        allowed_formats: ['jpg', 'png', 'jpeg', 'gif'],
-        transformation: [{ width: 800, height: 800, crop: 'limit' }],
-        resource_type: 'auto' // Автоматическое определение типа ресурса
+        upload_preset: 'products_unsigned'
     }
 });
 
