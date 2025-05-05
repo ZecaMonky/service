@@ -21,7 +21,9 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'products',
-        upload_preset: 'products_unsigned'
+        allowed_formats: ['jpg', 'png', 'jpeg', 'gif'],
+        transformation: [{ width: 800, height: 800, crop: 'limit' }]
+        // upload_preset: 'products_unsigned' // НЕ используем, если preset теперь signed
     }
 });
 
