@@ -64,27 +64,27 @@ router.get('/register', (req, res) => {
     });
 });
 
-router.post('/register', async (req, res) => {
+// Обработка регистрации
 router.post('/register', validateUserData, async (req, res) => {
+    try {
         const { name, email, password } = req.body;
         
         // Проверяем, существует ли пользователь
         const existingUser = await get('SELECT * FROM users WHERE email = $1', [email]);
         if (existingUser) {
-        if (existingUser.length > 0) {
             req.flash('error', 'Пользователь с таким email уже существует');
             return res.redirect('/auth/register');
         }
+
         // Хешируем пароль
-        // Хеширование пароля
         const hashedPassword = await bcrypt.hash(password, 10);
+
         // Создаем нового пользователя
-        // Создание пользователя
         await run(
             'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id',
             [name, email, hashedPassword]
         );
-        req.flash('success', 'Регистрация успешна. Теперь вы можете войти.');
+
         req.flash('success', 'Регистрация успешно завершена. Теперь вы можете войти.');
         res.redirect('/auth/login');
     } catch (error) {
