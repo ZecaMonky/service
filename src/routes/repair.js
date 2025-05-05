@@ -2,32 +2,83 @@ const express = require('express');
 const router = express.Router();
 const { query, get, run } = require('../config/database');
 const { isAuthenticated } = require('../middleware/auth');
+const { isAuth } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 
-// Страница заявки на ремонт
-router.get('/', (req, res) => {
-    res.render('repair/form', {
-        title: 'Заявка на ремонт',
-        user: req.session.user,
-        style: '',
-        script: ''
+// Страница заявок на ремонт
+router.get('/', isAuth, async (req, res) => {
+    try {
+        const result = await query(`
+            SELECT r.*, u.name as user_name 
+            FROM repair_requests r 
+            JOIN users u ON r.user_id = u.id 
+            WHERE r.user_id = $1 
+            ORDER BY r.created_at DESC
+        `, [req.session.user.id]);
+        
+        res.render('repair/index', {
+            title: 'Заявки на ремонт',
+            repairs: result.rows || [],
+            user: req.session.user
+        });
+    } catch (error) {
+        console.error('Ошибка при загрузке заявок:', error);
+        req.flash('error', 'Произошла ошибка при загрузке заявок');
+        res.redirect('/');
+    }
+});
+
+// Страница создания заявки
+router.get('/create', isAuth, (req, res) => {
+    res.render('repair/create', {
+        title: 'Создать заявку на ремонт',
+        user: req.session.user
     });
 });
 
-// Отправка заявки на ремонт
-router.post('/', isAuthenticated, async (req, res) => {
+// Обработка создания заявки
+router.post('/create', isAuth, upload.single('photo'), async (req, res) => {
     try {
-        const { deviceType, deviceModel, issue, contactPhone } = req.body;
-        
-        const result = await run(
-            'INSERT INTO repair_requests (user_id, device_type, device_model, issue, contact_phone) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-            [req.session.user.id, deviceType, deviceModel, issue, contactPhone]
-        );
-        
-        req.flash('success', 'Заявка успешно отправлена!');
-        res.redirect(`/repair/status/${result.rows[0].id}`);
+        const { device_type, model, problem_description } = req.body;
+        const photo_url = req.file ? req.file.path : null;
+
+        await query(`
+            INSERT INTO repair_requests (user_id, device_type, model, problem_description, photo_url, status)
+            VALUES ($1, $2, $3, $4, $5, 'pending')
+        `, [req.session.user.id, device_type, model, problem_description, photo_url]);
+
+        req.flash('success', 'Заявка успешно создана');
+        res.redirect('/repair');
     } catch (error) {
-        console.error('Ошибка при отправке заявки:', error);
-        req.flash('error', 'Произошла ошибка при отправке заявки');
+        console.error('Ошибка при создании заявки:', error);
+        req.flash('error', 'Произошла ошибка при создании заявки');
+        res.redirect('/repair/create');
+    }
+});
+
+// Страница просмотра заявки
+router.get('/:id', isAuth, async (req, res) => {
+    try {
+        const repair = await get(`
+            SELECT r.*, u.name as user_name 
+            FROM repair_requests r 
+            JOIN users u ON r.user_id = u.id 
+            WHERE r.id = $1 AND r.user_id = $2
+        `, [req.params.id, req.session.user.id]);
+        
+        if (!repair) {
+            req.flash('error', 'Заявка не найдена');
+            return res.redirect('/repair');
+        }
+
+        res.render('repair/view', {
+            title: 'Просмотр заявки',
+            repair,
+            user: req.session.user
+        });
+    } catch (error) {
+        console.error('Ошибка при загрузке заявки:', error);
+        req.flash('error', 'Произошла ошибка при загрузке заявки');
         res.redirect('/repair');
     }
 });

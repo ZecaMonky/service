@@ -5,11 +5,11 @@ const db = require('../config/database');
 // Главная страница
 router.get('/', async (req, res) => {
     try {
-        const products = await db.query('SELECT * FROM products ORDER BY created_at DESC LIMIT 6');
+        const result = await db.query('SELECT * FROM products ORDER BY created_at DESC LIMIT 6');
         
         res.render('index', {
             title: 'Главная',
-            products: products.rows || [], // Передаем массив товаров
+            products: result.rows || [],
             user: req.session.user
         });
     } catch (error) {

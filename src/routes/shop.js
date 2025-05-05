@@ -98,13 +98,13 @@ router.get('/', async (req, res) => {
         queryStr += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
         params.push(itemsPerPage, offset);
         
-        const products = await query(queryStr, params);
-        const categories = await query('SELECT DISTINCT category FROM products');
+        const result = await query(queryStr, params);
+        const categoriesResult = await query('SELECT DISTINCT category FROM products');
         
         res.render('shop/catalog', {
             title: 'Каталог товаров',
-            products: products.rows || [],
-            categories: categories.rows.map(c => c.category) || [],
+            products: result.rows || [],
+            categories: categoriesResult.rows.map(c => c.category) || [],
             selectedCategory: category,
             minPrice,
             maxPrice,
@@ -253,20 +253,23 @@ router.get('/checkout', isAuthenticated, async (req, res) => {
         // Получаем актуальные данные о товарах
         const productIds = cart.map(item => item.product_id);
         const placeholders = productIds.map((_, i) => `$${i + 1}`).join(',');
-        const products = await query(
+        const result = await query(
             `SELECT * FROM products WHERE id IN (${placeholders})`,
             productIds
         );
+
+        // Получаем массив товаров из результата запроса
+        const products = result.rows || [];
 
         // Обновляем данные в корзине
         const updatedCart = cart.map(item => {
             const product = products.find(p => p.id === item.product_id);
             return {
                 ...item,
-                name: product.name,
-                price: product.price,
-                image: product.image,
-                category: product.category
+                name: product?.name || item.name,
+                price: product?.price || item.price,
+                image: product?.image || item.image,
+                category: product?.category || item.category
             };
         });
 
@@ -303,20 +306,20 @@ router.post('/checkout', isAuthenticated, async (req, res) => {
         // Проверяем наличие всех товаров в базе данных
         const productIds = cart.map(item => item.product_id);
         const placeholders = productIds.map((_, i) => `$${i + 1}`).join(',');
-        const products = await query(`SELECT * FROM products WHERE id IN (${placeholders})`, productIds);
+        const result = await query(`SELECT * FROM products WHERE id IN (${placeholders})`, productIds);
         
-        if (products.rows.length !== cart.length) {
+        if (result.rows.length !== cart.length) {
             req.flash('error', 'Некоторые товары больше не доступны');
             return res.redirect('/shop/cart');
         }
 
         // Создаем заказ
         const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2);
-        const result = await run(
+        const orderResult = await run(
             'INSERT INTO shop_orders (user_id, total_amount, address, phone, comment, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
             [req.session.user.id, totalAmount, address, phone, comment || null, 'pending']
         );
-        const orderId = result.rows[0].id;
+        const orderId = orderResult.rows[0].id;
 
         // Создаем записи о товарах в заказе
         for (const item of cart) {
@@ -370,7 +373,7 @@ router.get('/order/:id', async (req, res) => {
 // История заказов
 router.get('/orders', isAuthenticated, async (req, res) => {
     try {
-        const orders = await query(`
+        const result = await query(`
             SELECT o.*, 
                    STRING_AGG(p.name, ',') as product_names,
                    STRING_AGG(oi.quantity::text, ',') as quantities,
@@ -385,7 +388,7 @@ router.get('/orders', isAuthenticated, async (req, res) => {
         
         res.render('shop/orders', {
             title: 'История заказов',
-            orders,
+            orders: result.rows || [],
             user: req.session.user
         });
     } catch (error) {

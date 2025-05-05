@@ -7,17 +7,19 @@ const { upload, logUpload, handleUploadError, getFileUrl } = require('../middlew
 // Главная страница админ-панели
 router.get('/', isAdmin, async (req, res) => {
     try {
-        const users = await query('SELECT * FROM users');
-        const products = await query('SELECT * FROM products');
-        const repairRequests = await query('SELECT * FROM repair_requests ORDER BY created_at DESC LIMIT 5');
-        const orders = await query('SELECT * FROM shop_orders ORDER BY created_at DESC LIMIT 5');
+        const [usersResult, productsResult, repairRequestsResult, ordersResult] = await Promise.all([
+            query('SELECT * FROM users'),
+            query('SELECT * FROM products'),
+            query('SELECT * FROM repair_requests ORDER BY created_at DESC LIMIT 5'),
+            query('SELECT * FROM shop_orders ORDER BY created_at DESC LIMIT 5')
+        ]);
 
         res.render('admin/dashboard', {
             title: 'Панель администратора',
-            users: users.rows,
-            products: products.rows,
-            repairRequests: repairRequests.rows,
-            orders: orders.rows
+            users: usersResult.rows || [],
+            products: productsResult.rows || [],
+            repairRequests: repairRequestsResult.rows || [],
+            orders: ordersResult.rows || []
         });
     } catch (error) {
         console.error('Ошибка при загрузке админ-панели:', error);
@@ -29,10 +31,10 @@ router.get('/', isAdmin, async (req, res) => {
 // Управление пользователями
 router.get('/users', isAdmin, async (req, res) => {
     try {
-        const users = await query('SELECT * FROM users');
+        const result = await query('SELECT * FROM users');
         res.render('admin/users', {
             title: 'Управление пользователями',
-            users: users.rows,
+            users: result.rows || [],
             user: req.session.user
         });
     } catch (error) {
@@ -45,10 +47,10 @@ router.get('/users', isAdmin, async (req, res) => {
 // Управление товарами
 router.get('/products', isAdmin, async (req, res) => {
     try {
-        const products = await query('SELECT * FROM products');
+        const result = await query('SELECT * FROM products');
         res.render('admin/products', {
             title: 'Управление товарами',
-            products: products.rows,
+            products: result.rows || [],
             user: req.session.user
         });
     } catch (error) {
@@ -152,7 +154,7 @@ router.delete('/products/:id', isAdmin, async (req, res) => {
 // Управление заявками на ремонт
 router.get('/repairs', isAdmin, async (req, res) => {
     try {
-        const repairs = await query(`
+        const result = await query(`
             SELECT r.*, u.name as user_name, u.email as user_email 
             FROM repair_requests r 
             JOIN users u ON r.user_id = u.id 
@@ -160,7 +162,7 @@ router.get('/repairs', isAdmin, async (req, res) => {
         `);
         res.render('admin/repairs', {
             title: 'Управление заявками на ремонт',
-            repairs: repairs.rows,
+            repairs: result.rows || [],
             user: req.session.user
         });
     } catch (error) {
@@ -190,7 +192,7 @@ router.post('/repairs/:id/status', isAdmin, async (req, res) => {
 // Управление заказами
 router.get('/orders', isAdmin, async (req, res) => {
     try {
-        const orders = await query(`
+        const result = await query(`
             SELECT o.*, u.name as user_name, u.email as user_email 
             FROM shop_orders o 
             JOIN users u ON o.user_id = u.id 
@@ -198,7 +200,7 @@ router.get('/orders', isAdmin, async (req, res) => {
         `);
         res.render('admin/orders', {
             title: 'Управление заказами',
-            orders: orders.rows,
+            orders: result.rows || [],
             user: req.session.user
         });
     } catch (error) {
