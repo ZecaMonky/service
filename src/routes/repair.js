@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { query, get, run } = require('../config/database');
 const { isAuthenticated } = require('../middleware/auth');
+const { validateRepairRequest } = require('../middleware/validation');
 // Страница создания заявки
 // Страница заявки на ремонт
 router.get('/', (req, res) => {
@@ -15,7 +16,7 @@ router.get('/', (req, res) => {
 
 // Обработка создания заявки
 // Отправка заявки на ремонт
-router.post('/', isAuthenticated, async (req, res) => {
+router.post('/', isAuthenticated, validateRepairRequest, async (req, res) => {
     try {
         const { deviceType, deviceModel, issue, contactPhone } = req.body;
         

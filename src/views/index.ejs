@@ -84,7 +84,7 @@
                         <h2 class="text-center mb-0">Заказать ремонт</h2>
                     </div>
                     <div class="card-body p-4">
-                        <form action="/repair" method="POST">
+                        <form action="/repair" method="POST" id="repairForm">
                             <div class="mb-3">
                                 <label for="deviceType" class="form-label">Тип устройства</label>
                                 <select class="form-select form-control-lg" id="deviceType" name="deviceType" required>
@@ -98,7 +98,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="deviceModel" class="form-label">Модель устройства</label>
-                                <input type="text" class="form-control form-control-lg" id="deviceModel" name="deviceModel" placeholder="Например: iPhone 12 Pro">
+                                <input type="text" class="form-control form-control-lg" id="deviceModel" name="deviceModel" placeholder="Например: iPhone 12 Pro" required>
                             </div>
                             <div class="mb-3">
                                 <label for="issue" class="form-label">Описание проблемы</label>
@@ -108,7 +108,12 @@
                                 <label for="contactPhone" class="form-label">Контактный телефон</label>
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                    <input type="tel" class="form-control" id="contactPhone" name="contactPhone" placeholder="+7 (XXX) XXX-XX-XX" required>
+                                    <input type="tel" class="form-control phone-input" id="contactPhone" name="contactPhone" 
+                                           pattern="^(\+7|8)[0-9]{10}$"
+                                           placeholder="+7 (999) 123-45-67" required>
+                                </div>
+                                <div class="form-text">
+                                    Введите номер телефона в формате: +7XXXXXXXXXX или 8XXXXXXXXXX
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary btn-lg w-100 py-3">
@@ -140,4 +145,50 @@
             </div>
         </div>
     </div>
-</section> 
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const phoneInput = document.getElementById('contactPhone');
+    const form = document.getElementById('repairForm');
+
+    // Функция форматирования номера телефона
+    function formatPhoneNumber(input) {
+        let value = input.value.replace(/\D/g, '');
+        
+        if (value.length > 0) {
+            if (value[0] === '8') {
+                value = '7' + value.slice(1);
+            }
+            if (value[0] !== '7') {
+                value = '7' + value;
+            }
+            value = '+' + value;
+        }
+        
+        input.value = value;
+    }
+
+    // Обработчик ввода телефона
+    phoneInput.addEventListener('input', function(e) {
+        formatPhoneNumber(this);
+    });
+
+    // Валидация формы
+    form.addEventListener('submit', function(e) {
+        const phone = phoneInput.value.replace(/\D/g, '');
+        
+        if (phone.length !== 11) {
+            e.preventDefault();
+            alert('Пожалуйста, введите корректный номер телефона');
+            return false;
+        }
+        
+        if (!/^[78]/.test(phone)) {
+            e.preventDefault();
+            alert('Номер телефона должен начинаться с 7 или 8');
+            return false;
+        }
+    });
+});
+</script> 
