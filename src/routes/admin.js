@@ -60,6 +60,14 @@ router.get('/products', isAdmin, async (req, res) => {
 
 // Добавление товара
 router.post('/products', isAdmin, upload.single('image'), handleUploadError, async (req, res) => {
+    // Диагностический лог
+    console.log('--- Загрузка товара ---');
+    console.log('req.body:', req.body);
+    console.log('req.file:', req.file);
+    console.log('req.files:', req.files);
+    if (!req.file) {
+        console.log('Файл не был загружен!');
+    }
     try {
         const { name, category, description, price, stock } = req.body;
         let imagePath = null;
@@ -92,6 +100,14 @@ router.get('/products/new', isAdmin, (req, res) => {
 
 // Редактирование товара
 router.post('/products/:id', isAdmin, upload.single('image'), handleUploadError, async (req, res) => {
+    // Диагностический лог
+    console.log('--- Обновление товара ---');
+    console.log('req.body:', req.body);
+    console.log('req.file:', req.file);
+    console.log('req.files:', req.files);
+    if (!req.file) {
+        console.log('Файл не был загружен при обновлении!');
+    }
     try {
         const { name, category, description, price, stock } = req.body;
         const productId = req.params.id;
