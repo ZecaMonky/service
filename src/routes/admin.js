@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { query, get, run } = require('../config/database');
 const { isAdmin } = require('../middleware/auth');
-const { upload, handleUploadError, getFileUrl } = require('../middleware/upload');
+const { upload, logUpload, handleUploadError, getFileUrl } = require('../middleware/upload');
 
 // Главная страница админ-панели
 router.get('/', isAdmin, async (req, res) => {
@@ -59,7 +59,7 @@ router.get('/products', isAdmin, async (req, res) => {
 });
 
 // Добавление товара
-router.post('/products', isAdmin, upload.single('image'), handleUploadError, async (req, res) => {
+router.post('/products', isAdmin, logUpload, upload.single('image'), handleUploadError, async (req, res) => {
     // Диагностический лог
     console.log('--- Загрузка товара ---');
     console.log('req.body:', req.body);
