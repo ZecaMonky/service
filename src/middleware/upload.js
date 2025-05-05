@@ -19,7 +19,8 @@ const storage = new CloudinaryStorage({
     params: {
         folder: 'products',
         allowed_formats: ['jpg', 'png', 'jpeg', 'gif'],
-        transformation: [{ width: 800, height: 800, crop: 'limit' }]
+        transformation: [{ width: 800, height: 800, crop: 'limit' }],
+        upload_preset: 'products_unsigned'
     }
 });
 
