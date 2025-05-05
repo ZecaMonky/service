@@ -6,6 +6,8 @@ const expressLayouts = require('express-ejs-layouts');
 const flash = require('connect-flash');
 const { pool } = require('./config/database');
 const viewVariables = require('./middleware/view-variables');
+const { securityMiddleware, checkIpBlock } = require('./middleware/security');
+const { sessionMiddleware, updateLastActivity } = require('./middleware/session');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -18,10 +20,13 @@ app.set('layout', 'layouts/main');
 app.set('layout extractScripts', true);
 app.set('layout extractStyles', true);
 
-// Middleware
+// Middleware безопасности
+app.use(securityMiddleware);
+app.use(checkIpBlock);
+
+// Middleware для обработки JSON и URL-encoded данных
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware для обработки методов DELETE и PUT
 app.use((req, res, next) => {
@@ -43,26 +48,18 @@ app.use((req, res, next) => {
     next();
 });
 
-// Настройка сессий через PostgreSQL
-app.use(session({
-    store: new pgSession({
-        pool: pool,
-        tableName: 'session'
-    }),
-    secret: process.env.SESSION_SECRET || 'your-secret-key-here',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { 
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 24 * 60 * 60 * 1000 // 24 часа
-    }
-}));
+// Настройка сессий
+app.use(sessionMiddleware);
+app.use(updateLastActivity);
 
 // Настройка flash-сообщений
 app.use(flash());
 
 // Добавляем переменные представления
 app.use(viewVariables);
+
+// Статические файлы
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Роуты
 app.use('/', require('./routes/main'));
@@ -71,11 +68,7 @@ app.use('/admin', require('./routes/admin'));
 app.use('/shop', require('./routes/shop'));
 app.use('/repair', require('./routes/repair'));
 
-// ВАЖНО: express.json() и express.urlencoded() должны идти после роутов с Multer!
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Middleware для логирования ошибок
+// Middleware для обработки ошибок
 app.use((err, req, res, next) => {
     console.error('Ошибка:', err);
     res.status(500).render('error', { 

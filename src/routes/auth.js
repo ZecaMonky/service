@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const { query, get, run } = require('../config/database');
+const { validateUserData } = require('../middleware/validation');
 
 // Страница входа
 router.get('/login', (req, res) => {
