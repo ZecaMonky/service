@@ -26,16 +26,17 @@
                             <label for="password" class="form-label">Пароль</label>
                             <input type="password" class="form-control" id="password" name="password" required>
                             <div class="form-text">
-                                <ul class="list-unstyled">
-                                    <li id="length" class="text-danger">Минимум 8 символов</li>
-                                    <li id="uppercase" class="text-danger">Минимум 1 заглавная буква</li>
-                                    <li id="lowercase" class="text-danger">Минимум 1 строчная буква</li>
-                                    <li id="number" class="text-danger">Минимум 1 цифра</li>
-                                    <li id="special" class="text-danger">Минимум 1 специальный символ (!@#$%^&*)</li>
+                                <p class="mb-1">Пароль должен соответствовать следующим требованиям:</p>
+                                <ul class="mb-0">
+                                    <li>Минимум 8 символов</li>
+                                    <li>Хотя бы одна заглавная буква</li>
+                                    <li>Хотя бы одна строчная буква</li>
+                                    <li>Хотя бы одна цифра</li>
+                                    <li>Хотя бы один специальный символ (!@#$%^&*_)</li>
                                 </ul>
                             </div>
                         </div>
-
+                        
                         <div class="mb-3">
                             <label for="confirmPassword" class="form-label">Подтверждение пароля</label>
                             <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
@@ -56,76 +57,51 @@
 </div>
 
 <script>
+document.querySelector('form').addEventListener('submit', function(e) {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    if (password !== confirmPassword) {
+        e.preventDefault();
+        alert('Пароли не совпадают');
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
-    const password = document.getElementById('password');
-    const confirmPassword = document.getElementById('confirmPassword');
+    const passwordInput = document.getElementById('password');
     const requirements = {
-        length: document.getElementById('length'),
-        uppercase: document.getElementById('uppercase'),
-        lowercase: document.getElementById('lowercase'),
-        number: document.getElementById('number'),
-        special: document.getElementById('special')
+        length: document.createElement('li'),
+        uppercase: document.createElement('li'),
+        lowercase: document.createElement('li'),
+        number: document.createElement('li'),
+        special: document.createElement('li')
     };
 
-    function validatePassword() {
-        const value = password.value;
+    // Добавляем элементы для отображения статуса требований
+    const requirementsList = document.querySelector('.form-text ul');
+    requirementsList.innerHTML = '';
+    Object.values(requirements).forEach(req => requirementsList.appendChild(req));
+
+    // Функция обновления статуса требований
+    function updateRequirements() {
+        const password = passwordInput.value;
         
-        // Проверка длины
-        if (value.length >= 8) {
-            requirements.length.classList.remove('text-danger');
-            requirements.length.classList.add('text-success');
-        } else {
-            requirements.length.classList.remove('text-success');
-            requirements.length.classList.add('text-danger');
-        }
+        requirements.length.textContent = 'Минимум 8 символов';
+        requirements.length.style.color = password.length >= 8 ? 'green' : 'red';
         
-        // Проверка заглавных букв
-        if (/[A-Z]/.test(value)) {
-            requirements.uppercase.classList.remove('text-danger');
-            requirements.uppercase.classList.add('text-success');
-        } else {
-            requirements.uppercase.classList.remove('text-success');
-            requirements.uppercase.classList.add('text-danger');
-        }
+        requirements.uppercase.textContent = 'Хотя бы одна заглавная буква';
+        requirements.uppercase.style.color = /[A-Z]/.test(password) ? 'green' : 'red';
         
-        // Проверка строчных букв
-        if (/[a-z]/.test(value)) {
-            requirements.lowercase.classList.remove('text-danger');
-            requirements.lowercase.classList.add('text-success');
-        } else {
-            requirements.lowercase.classList.remove('text-success');
-            requirements.lowercase.classList.add('text-danger');
-        }
+        requirements.lowercase.textContent = 'Хотя бы одна строчная буква';
+        requirements.lowercase.style.color = /[a-z]/.test(password) ? 'green' : 'red';
         
-        // Проверка цифр
-        if (/[0-9]/.test(value)) {
-            requirements.number.classList.remove('text-danger');
-            requirements.number.classList.add('text-success');
-        } else {
-            requirements.number.classList.remove('text-success');
-            requirements.number.classList.add('text-danger');
-        }
+        requirements.number.textContent = 'Хотя бы одна цифра';
+        requirements.number.style.color = /[0-9]/.test(password) ? 'green' : 'red';
         
-        // Проверка специальных символов
-        if (/[!@#$%^&*]/.test(value)) {
-            requirements.special.classList.remove('text-danger');
-            requirements.special.classList.add('text-success');
-        } else {
-            requirements.special.classList.remove('text-success');
-            requirements.special.classList.add('text-danger');
-        }
+        requirements.special.textContent = 'Хотя бы один специальный символ (!@#$%^&*)';
+        requirements.special.style.color = /[!@#$%^&*]/.test(password) ? 'green' : 'red';
     }
 
-    // Проверка при вводе пароля
-    password.addEventListener('input', validatePassword);
-
-    // Проверка совпадения паролей
-    confirmPassword.addEventListener('input', function() {
-        if (this.value === password.value) {
-            this.setCustomValidity('');
-        } else {
-            this.setCustomValidity('Пароли не совпадают');
-        }
-    });
+    passwordInput.addEventListener('input', updateRequirements);
 });
 </script> 

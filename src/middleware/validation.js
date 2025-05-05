@@ -43,7 +43,7 @@ const validatePhone = (phone) => {
 
 // Middleware для валидации данных пользователя
 const validateUserData = async (req, res, next) => {
-    const { name, email, password, confirmPassword } = req.body;
+    const { name, email, password } = req.body;
 
     // Проверка имени
     if (!name || name.length < 2) {
@@ -61,12 +61,6 @@ const validateUserData = async (req, res, next) => {
     const existingUser = await get('SELECT * FROM users WHERE email = $1', [email]);
     if (existingUser) {
         req.flash('error', 'Пользователь с таким email уже существует');
-        return res.redirect('/auth/register');
-    }
-
-    // Проверка совпадения паролей
-    if (password !== confirmPassword) {
-        req.flash('error', 'Пароли не совпадают');
         return res.redirect('/auth/register');
     }
 
