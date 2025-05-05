@@ -4,7 +4,7 @@
             <div class="card-body">
                 <h2 class="text-center mb-4">Заявка на ремонт</h2>
                 
-                <form action="/repair" method="POST">
+                <form action="/repair" method="POST" id="repairForm">
                     <div class="mb-3">
                         <label for="deviceType" class="form-label">Тип устройства</label>
                         <select class="form-select" id="deviceType" name="deviceType" required>
@@ -29,7 +29,12 @@
                     
                     <div class="mb-3">
                         <label for="contactPhone" class="form-label">Контактный телефон</label>
-                        <input type="tel" class="form-control" id="contactPhone" name="contactPhone" required>
+                        <input type="tel" class="form-control" id="contactPhone" name="contactPhone" 
+                               pattern="^(\+7|8)[0-9]{10}$" 
+                               placeholder="+7 (999) 123-45-67" required>
+                        <div class="form-text">
+                            Введите номер телефона в формате: +7XXXXXXXXXX или 8XXXXXXXXXX
+                        </div>
                     </div>
                     
                     <div class="d-grid">
@@ -40,3 +45,49 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const phoneInput = document.getElementById('contactPhone');
+    const form = document.getElementById('repairForm');
+
+    // Функция форматирования номера телефона
+    function formatPhoneNumber(input) {
+        let value = input.value.replace(/\D/g, '');
+        
+        if (value.length > 0) {
+            if (value[0] === '8') {
+                value = '7' + value.slice(1);
+            }
+            if (value[0] !== '7') {
+                value = '7' + value;
+            }
+            value = '+' + value;
+        }
+        
+        input.value = value;
+    }
+
+    // Обработчик ввода телефона
+    phoneInput.addEventListener('input', function(e) {
+        formatPhoneNumber(this);
+    });
+
+    // Валидация формы
+    form.addEventListener('submit', function(e) {
+        const phone = phoneInput.value.replace(/\D/g, '');
+        
+        if (phone.length !== 11) {
+            e.preventDefault();
+            alert('Пожалуйста, введите корректный номер телефона');
+            return false;
+        }
+        
+        if (!/^[78]/.test(phone)) {
+            e.preventDefault();
+            alert('Номер телефона должен начинаться с 7 или 8');
+            return false;
+        }
+    });
+});
+</script>

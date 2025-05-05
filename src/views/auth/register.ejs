@@ -1,37 +1,55 @@
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <h2 class="text-center mb-4">Регистрация</h2>
-                
-                <form action="/auth/register" method="POST">
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Имя</label>
-                        <input type="text" class="form-control" id="name" name="name" required>
-                    </div>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">Регистрация</h2>
                     
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
+                    <% if (error && error.length > 0) { %>
+                        <div class="alert alert-danger">
+                            <%= error %>
+                        </div>
+                    <% } %>
+
+                    <form action="/auth/register" method="POST">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Имя</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Пароль</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <div class="form-text">
+                                <p class="mb-1">Пароль должен соответствовать следующим требованиям:</p>
+                                <ul class="mb-0">
+                                    <li>Минимум 8 символов</li>
+                                    <li>Хотя бы одна заглавная буква</li>
+                                    <li>Хотя бы одна строчная буква</li>
+                                    <li>Хотя бы одна цифра</li>
+                                    <li>Хотя бы один специальный символ (!@#$%^&*)</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Подтверждение пароля</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+                        </div>
+                    </form>
                     
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Пароль</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                    <div class="text-center mt-3">
+                        <p>Уже есть аккаунт? <a href="/auth/login">Войти</a></p>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label for="confirmPassword" class="form-label">Подтверждение пароля</label>
-                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
-                    </div>
-                    
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
-                    </div>
-                </form>
-                
-                <div class="text-center mt-3">
-                    <p>Уже есть аккаунт? <a href="/auth/login">Войти</a></p>
                 </div>
             </div>
         </div>
@@ -47,5 +65,43 @@ document.querySelector('form').addEventListener('submit', function(e) {
         e.preventDefault();
         alert('Пароли не совпадают');
     }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('password');
+    const requirements = {
+        length: document.createElement('li'),
+        uppercase: document.createElement('li'),
+        lowercase: document.createElement('li'),
+        number: document.createElement('li'),
+        special: document.createElement('li')
+    };
+
+    // Добавляем элементы для отображения статуса требований
+    const requirementsList = document.querySelector('.form-text ul');
+    requirementsList.innerHTML = '';
+    Object.values(requirements).forEach(req => requirementsList.appendChild(req));
+
+    // Функция обновления статуса требований
+    function updateRequirements() {
+        const password = passwordInput.value;
+        
+        requirements.length.textContent = 'Минимум 8 символов';
+        requirements.length.style.color = password.length >= 8 ? 'green' : 'red';
+        
+        requirements.uppercase.textContent = 'Хотя бы одна заглавная буква';
+        requirements.uppercase.style.color = /[A-Z]/.test(password) ? 'green' : 'red';
+        
+        requirements.lowercase.textContent = 'Хотя бы одна строчная буква';
+        requirements.lowercase.style.color = /[a-z]/.test(password) ? 'green' : 'red';
+        
+        requirements.number.textContent = 'Хотя бы одна цифра';
+        requirements.number.style.color = /[0-9]/.test(password) ? 'green' : 'red';
+        
+        requirements.special.textContent = 'Хотя бы один специальный символ (!@#$%^&*)';
+        requirements.special.style.color = /[!@#$%^&*]/.test(password) ? 'green' : 'red';
+    }
+
+    passwordInput.addEventListener('input', updateRequirements);
 });
 </script> 
