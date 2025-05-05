@@ -63,14 +63,14 @@ router.get('/status/:id', isAuthenticated, async (req, res) => {
 // История заявок
 router.get('/history', isAuthenticated, async (req, res) => {
     try {
-        const requests = await query(
+        const result = await query(
             'SELECT * FROM repair_requests WHERE user_id = $1 ORDER BY created_at DESC',
             [req.session.user.id]
         );
 
         res.render('repair/history', {
             title: 'История заявок',
-            requests,
+            requests: result.rows || [],
             user: req.session.user,
             style: '',
             script: ''
