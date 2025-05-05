@@ -1,18 +1,12 @@
-const { query, get, run } = require('../config/database');
+const { run, pool } = require('../config/database');
 const session = require('express-session');
-const SQLiteStore = require('connect-sqlite3')(session);
-const path = require('path');
+const PgSession = require('connect-pg-simple')(session);
 
-// Определяем путь к файлу сессий
-const sessionsPath = process.env.NODE_ENV === 'production'
-    ? path.join(process.cwd(), 'database', 'sessions.db')
-    : path.join(__dirname, '../../database/sessions.db');
-
-// Middleware для настройки сессий
+// Middleware для настройки сессий через PostgreSQL
 const sessionMiddleware = session({
-    store: new SQLiteStore({
-        db: 'sessions.db',
-        dir: process.env.NODE_ENV === 'production' ? './database' : path.join(__dirname, '../../database')
+    store: new PgSession({
+        pool: pool,
+        tableName: 'session'
     }),
     secret: process.env.SESSION_SECRET || 'your-secret-key-here',
     resave: false,
@@ -28,7 +22,7 @@ const updateLastActivity = async (req, res, next) => {
     if (req.session.user) {
         try {
             await run(
-                'UPDATE users SET last_activity = ? WHERE id = ?',
+                'UPDATE users SET last_activity = $1 WHERE id = $2',
                 [new Date(), req.session.user.id]
             );
         } catch (error) {

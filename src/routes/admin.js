@@ -7,7 +7,6 @@ const { upload, handleUploadError, getFileUrl } = require('../middleware/upload'
 // Главная страница админ-панели
 router.get('/', isAdmin, async (req, res) => {
     try {
-        // Получаем статистику
         const users = await query('SELECT * FROM users');
         const products = await query('SELECT * FROM products');
         const repairRequests = await query('SELECT * FROM repair_requests ORDER BY created_at DESC LIMIT 5');
@@ -15,10 +14,10 @@ router.get('/', isAdmin, async (req, res) => {
 
         res.render('admin/dashboard', {
             title: 'Панель администратора',
-            users,
-            products,
-            repairRequests,
-            orders
+            users: users.rows,
+            products: products.rows,
+            repairRequests: repairRequests.rows,
+            orders: orders.rows
         });
     } catch (error) {
         console.error('Ошибка при загрузке админ-панели:', error);
@@ -33,7 +32,7 @@ router.get('/users', isAdmin, async (req, res) => {
         const users = await query('SELECT * FROM users');
         res.render('admin/users', {
             title: 'Управление пользователями',
-            users,
+            users: users.rows,
             user: req.session.user
         });
     } catch (error) {
@@ -49,7 +48,7 @@ router.get('/products', isAdmin, async (req, res) => {
         const products = await query('SELECT * FROM products');
         res.render('admin/products', {
             title: 'Управление товарами',
-            products,
+            products: products.rows,
             user: req.session.user
         });
     } catch (error) {
@@ -66,11 +65,11 @@ router.post('/products', isAdmin, upload.single('image'), handleUploadError, asy
         let imagePath = null;
 
         if (req.file) {
-            imagePath = getFileUrl(req.file.filename);
+            imagePath = getFileUrl(req.file);
         }
 
         await run(
-            'INSERT INTO products (name, category, description, price, stock, image) VALUES (?, ?, ?, ?, ?, ?)',
+            'INSERT INTO products (name, category, description, price, stock, image) VALUES ($1, $2, $3, $4, $5, $6)',
             [name, category, description, price, stock, imagePath]
         );
         req.flash('success', 'Товар успешно добавлен');
@@ -94,20 +93,16 @@ router.post('/products/:id', isAdmin, upload.single('image'), handleUploadError,
         const productId = req.params.id;
         let imagePath = null;
 
-        // Получаем существующий продукт
-        const existingProduct = await get('SELECT image FROM products WHERE id = ?', [productId]);
+        const existingProduct = await get('SELECT image FROM products WHERE id = $1', [productId]);
 
-        // Проверяем, был ли загружен новый файл
         if (req.file) {
-            // Сохраняем URL изображения
-            imagePath = getFileUrl(req.file.filename);
+            imagePath = getFileUrl(req.file);
         } else {
-            // Если новый файл не загружен, оставляем старое изображение
             imagePath = existingProduct ? existingProduct.image : null;
         }
 
         await run(
-            'UPDATE products SET name = ?, category = ?, description = ?, price = ?, stock = ?, image = ? WHERE id = ?',
+            'UPDATE products SET name = $1, category = $2, description = $3, price = $4, stock = $5, image = $6 WHERE id = $7',
             [name, category, description, price, stock, imagePath, productId]
         );
         req.flash('success', 'Товар успешно обновлен');
@@ -122,12 +117,8 @@ router.post('/products/:id', isAdmin, upload.single('image'), handleUploadError,
 // Удаление товара
 router.delete('/products/:id', isAdmin, async (req, res) => {
     try {
-        // Сначала удаляем связанные записи в order_items
-        await run('DELETE FROM order_items WHERE product_id = ?', [req.params.id]);
-        
-        // Теперь можно удалить сам товар
-        await run('DELETE FROM products WHERE id = ?', [req.params.id]);
-        
+        await run('DELETE FROM order_items WHERE product_id = $1', [req.params.id]);
+        await run('DELETE FROM products WHERE id = $1', [req.params.id]);
         res.json({ success: true });
     } catch (error) {
         console.error('Ошибка при удалении товара:', error);
@@ -146,7 +137,7 @@ router.get('/repairs', isAdmin, async (req, res) => {
         `);
         res.render('admin/repairs', {
             title: 'Управление заявками на ремонт',
-            repairs,
+            repairs: repairs.rows,
             user: req.session.user
         });
     } catch (error) {
@@ -161,7 +152,7 @@ router.post('/repairs/:id/status', isAdmin, async (req, res) => {
     try {
         const { status } = req.body;
         await run(
-            'UPDATE repair_requests SET status = ? WHERE id = ?',
+            'UPDATE repair_requests SET status = $1 WHERE id = $2',
             [status, req.params.id]
         );
         req.flash('success', 'Статус заявки успешно обновлен');
@@ -184,7 +175,7 @@ router.get('/orders', isAdmin, async (req, res) => {
         `);
         res.render('admin/orders', {
             title: 'Управление заказами',
-            orders,
+            orders: orders.rows,
             user: req.session.user
         });
     } catch (error) {
@@ -199,7 +190,7 @@ router.post('/orders/:id/status', isAdmin, async (req, res) => {
     try {
         const { status } = req.body;
         await run(
-            'UPDATE shop_orders SET status = ? WHERE id = ?',
+            'UPDATE shop_orders SET status = $1 WHERE id = $2',
             [status, req.params.id]
         );
         req.flash('success', 'Статус заказа успешно обновлен');
@@ -214,7 +205,7 @@ router.post('/orders/:id/status', isAdmin, async (req, res) => {
 // Удаление пользователя
 router.delete('/users/:id', isAdmin, async (req, res) => {
     try {
-        await run('DELETE FROM users WHERE id = ?', [req.params.id]);
+        await run('DELETE FROM users WHERE id = $1', [req.params.id]);
         res.json({ success: true });
     } catch (error) {
         console.error('Ошибка при удалении пользователя:', error);
@@ -227,7 +218,7 @@ router.put('/users/:id', isAdmin, async (req, res) => {
     try {
         const { name, email, role } = req.body;
         await run(
-            'UPDATE users SET name = ?, email = ?, role = ? WHERE id = ?',
+            'UPDATE users SET name = $1, email = $2, role = $3 WHERE id = $4',
             [name, email, role, req.params.id]
         );
         req.flash('success', 'Пользователь успешно обновлен');
@@ -242,7 +233,7 @@ router.put('/users/:id', isAdmin, async (req, res) => {
 // Удаление заявки на ремонт
 router.delete('/repairs/:id', isAdmin, async (req, res) => {
     try {
-        await run('DELETE FROM repair_requests WHERE id = ?', [req.params.id]);
+        await run('DELETE FROM repair_requests WHERE id = $1', [req.params.id]);
         res.json({ success: true });
     } catch (error) {
         console.error('Ошибка при удалении заявки:', error);
@@ -255,7 +246,7 @@ router.put('/repairs/:id', isAdmin, async (req, res) => {
     try {
         const { status, comment } = req.body;
         await run(
-            'UPDATE repair_requests SET status = ?, comment = ? WHERE id = ?',
+            'UPDATE repair_requests SET status = $1, comment = $2 WHERE id = $3',
             [status, comment, req.params.id]
         );
         req.flash('success', 'Статус заявки успешно обновлен');
@@ -270,7 +261,7 @@ router.put('/repairs/:id', isAdmin, async (req, res) => {
 // Удаление заказа
 router.delete('/orders/:id', isAdmin, async (req, res) => {
     try {
-        await run('DELETE FROM shop_orders WHERE id = ?', [req.params.id]);
+        await run('DELETE FROM shop_orders WHERE id = $1', [req.params.id]);
         res.json({ success: true });
     } catch (error) {
         console.error('Ошибка при удалении заказа:', error);
@@ -283,7 +274,7 @@ router.put('/orders/:id', isAdmin, async (req, res) => {
     try {
         const { status } = req.body;
         await run(
-            'UPDATE shop_orders SET status = ? WHERE id = ?',
+            'UPDATE shop_orders SET status = $1 WHERE id = $2',
             [status, req.params.id]
         );
         req.flash('success', 'Заказ успешно обновлен');
@@ -298,7 +289,7 @@ router.put('/orders/:id', isAdmin, async (req, res) => {
 // Редактирование пользователя
 router.get('/users/:id/edit', isAdmin, async (req, res) => {
     try {
-        const user = await get('SELECT * FROM users WHERE id = ?', [req.params.id]);
+        const user = await get('SELECT * FROM users WHERE id = $1', [req.params.id]);
         if (!user) {
             req.flash('error', 'Пользователь не найден');
             return res.redirect('/admin/users');
@@ -314,7 +305,7 @@ router.get('/users/:id/edit', isAdmin, async (req, res) => {
 // Редактирование товара
 router.get('/products/:id', isAdmin, async (req, res) => {
     try {
-        const product = await get('SELECT * FROM products WHERE id = ?', [req.params.id]);
+        const product = await get('SELECT * FROM products WHERE id = $1', [req.params.id]);
         if (!product) {
             req.flash('error', 'Товар не найден');
             return res.redirect('/admin/products');
@@ -334,7 +325,7 @@ router.get('/repairs/:id/edit', isAdmin, async (req, res) => {
             SELECT r.*, u.name as user_name 
             FROM repair_requests r 
             JOIN users u ON r.user_id = u.id 
-            WHERE r.id = ?
+            WHERE r.id = $1
         `, [req.params.id]);
         
         if (!repair) {
@@ -354,15 +345,15 @@ router.get('/orders/:id/edit', isAdmin, async (req, res) => {
     try {
         const order = await get(`
             SELECT o.*, u.name as user_name,
-                   GROUP_CONCAT(p.name) as product_names,
-                   GROUP_CONCAT(oi.quantity) as quantities,
-                   GROUP_CONCAT(oi.price) as prices
+                   STRING_AGG(p.name, ',') as product_names,
+                   STRING_AGG(oi.quantity::text, ',') as quantities,
+                   STRING_AGG(oi.price::text, ',') as prices
             FROM shop_orders o
             JOIN users u ON o.user_id = u.id
             LEFT JOIN order_items oi ON o.id = oi.order_id
             LEFT JOIN products p ON oi.product_id = p.id
-            WHERE o.id = ?
-            GROUP BY o.id
+            WHERE o.id = $1
+            GROUP BY o.id, u.name
         `, [req.params.id]);
         
         if (!order) {
@@ -370,7 +361,6 @@ router.get('/orders/:id/edit', isAdmin, async (req, res) => {
             return res.redirect('/admin/orders');
         }
         
-        // Преобразуем строки с товарами в массив объектов
         const items = order.product_names ? order.product_names.split(',').map((name, index) => ({
             product_name: name,
             quantity: order.quantities.split(',')[index],

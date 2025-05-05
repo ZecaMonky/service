@@ -9,7 +9,7 @@ const requestLogger = async (req, res, next) => {
         
         try {
             await run(
-                'INSERT INTO request_logs (method, path, status, duration, user_id, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+                'INSERT INTO request_logs (method, path, status, duration, user_id, created_at) VALUES ($1, $2, $3, $4, $5, $6)',
                 [
                     req.method,
                     req.path,

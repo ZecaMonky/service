@@ -1,9 +1,10 @@
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
 const expressLayouts = require('express-ejs-layouts');
 const flash = require('connect-flash');
-const { query, get, run } = require('./config/database');
+const { pool } = require('./config/database');
 const viewVariables = require('./middleware/view-variables');
 
 const app = express();
@@ -41,13 +42,17 @@ app.use((req, res, next) => {
     next();
 });
 
-// Настройка сессий
+// Настройка сессий через PostgreSQL
 app.use(session({
+    store: new pgSession({
+        pool: pool,
+        tableName: 'session'
+    }),
     secret: process.env.SESSION_SECRET || 'your-secret-key-here',
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: { 
-        secure: false,
+        secure: process.env.NODE_ENV === 'production',
         maxAge: 24 * 60 * 60 * 1000 // 24 часа
     }
 }));

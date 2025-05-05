@@ -18,7 +18,7 @@ router.post('/login', async (req, res) => {
         const { email, password } = req.body;
         
         // Получаем пользователя
-        const user = await get('SELECT * FROM users WHERE email = ?', [email]);
+        const user = await get('SELECT * FROM users WHERE email = $1', [email]);
         
         if (!user) {
             req.flash('error', 'Неверный email или пароль');
@@ -64,7 +64,7 @@ router.post('/register', async (req, res) => {
         const { name, email, password } = req.body;
         
         // Проверяем, существует ли пользователь
-        const existingUser = await get('SELECT * FROM users WHERE email = ?', [email]);
+        const existingUser = await get('SELECT * FROM users WHERE email = $1', [email]);
         if (existingUser) {
             req.flash('error', 'Пользователь с таким email уже существует');
             return res.redirect('/auth/register');
@@ -75,7 +75,7 @@ router.post('/register', async (req, res) => {
 
         // Создаем нового пользователя
         await run(
-            'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
+            'INSERT INTO users (name, email, password) VALUES ($1, $2, $3)',
             [name, email, hashedPassword]
         );
 

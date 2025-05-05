@@ -299,54 +299,27 @@ router.post('/checkout', isAuthenticated, async (req, res) => {
 
         // Проверяем наличие всех товаров в базе данных
         const productIds = cart.map(item => item.product_id);
-        const products = await query('SELECT * FROM products WHERE id IN (' + productIds.join(',') + ')');
+        const placeholders = productIds.map((_, i) => `$${i + 1}`).join(',');
+        const products = await query(`SELECT * FROM products WHERE id IN (${placeholders})`, productIds);
         
-        if (products.length !== cart.length) {
+        if (products.rows.length !== cart.length) {
             req.flash('error', 'Некоторые товары больше не доступны');
             return res.redirect('/shop/cart');
         }
 
-        // Проверяем и добавляем колонки в таблицу shop_orders, если их нет
-        await run(`
-            CREATE TABLE IF NOT EXISTS shop_orders (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                total_amount DECIMAL(10,2) NOT NULL,
-                address TEXT NOT NULL,
-                phone TEXT NOT NULL,
-                comment TEXT,
-                status TEXT NOT NULL DEFAULT 'pending',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(id)
-            )
-        `);
-
-        // Создаем таблицу order_items, если её нет
-        await run(`
-            CREATE TABLE IF NOT EXISTS order_items (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                order_id INTEGER NOT NULL,
-                product_id INTEGER NOT NULL,
-                quantity INTEGER NOT NULL,
-                price DECIMAL(10,2) NOT NULL,
-                FOREIGN KEY (order_id) REFERENCES shop_orders(id),
-                FOREIGN KEY (product_id) REFERENCES products(id)
-            )
-        `);
-
         // Создаем заказ
         const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2);
         const result = await run(
-            'INSERT INTO shop_orders (user_id, total_amount, address, phone, comment, status) VALUES (?, ?, ?, ?, ?, ?)',
+            'INSERT INTO shop_orders (user_id, total_amount, address, phone, comment, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
             [req.session.user.id, totalAmount, address, phone, comment || null, 'pending']
         );
+        const orderId = result.rows[0].id;
 
         // Создаем записи о товарах в заказе
         for (const item of cart) {
             await run(
-                'INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)',
-                [result.lastID, item.product_id, item.quantity, item.price]
+                'INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ($1, $2, $3, $4)',
+                [orderId, item.product_id, item.quantity, item.price]
             );
         }
 
