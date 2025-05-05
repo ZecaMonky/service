@@ -66,6 +66,10 @@ router.post('/products', isAdmin, upload.single('image'), handleUploadError, asy
 
         if (req.file) {
             imagePath = getFileUrl(req.file);
+            console.log('Cloudinary file:', req.file);
+            console.log('Image path:', imagePath);
+        } else {
+            console.log('Файл не был загружен!');
         }
 
         await run(
@@ -97,8 +101,11 @@ router.post('/products/:id', isAdmin, upload.single('image'), handleUploadError,
 
         if (req.file) {
             imagePath = getFileUrl(req.file);
+            console.log('Cloudinary file (update):', req.file);
+            console.log('Image path (update):', imagePath);
         } else {
             imagePath = existingProduct ? existingProduct.image : null;
+            console.log('Файл не был загружен при обновлении!');
         }
 
         await run(
