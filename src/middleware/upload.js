@@ -15,19 +15,27 @@ console.log('API Key:', process.env.CLOUDINARY_API_KEY);
 console.log('API Secret:', process.env.CLOUDINARY_API_SECRET ? '***' : 'Not set');
 
 // Настройка Cloudinary с дополнительными параметрами
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-    secure: true,
-    api_proxy: process.env.CLOUDINARY_API_PROXY
-});
+const config = {
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME.trim(),
+    api_key: process.env.CLOUDINARY_API_KEY.trim(),
+    api_secret: process.env.CLOUDINARY_API_SECRET.trim(),
+    secure: true
+};
+
+console.log('=== Cloudinary Config Object ===');
+console.log(JSON.stringify(config, null, 2));
+
+cloudinary.config(config);
 
 // Проверка конфигурации Cloudinary
 cloudinary.api.ping()
-    .then(() => console.log('Cloudinary connection successful'))
+    .then(() => {
+        console.log('Cloudinary connection successful');
+        console.log('Current cloud name:', cloudinary.config().cloud_name);
+    })
     .catch(err => {
         console.error('ОШИБКА подключения к Cloudinary:', err);
+        console.error('Текущая конфигурация:', cloudinary.config());
         throw err;
     });
 
