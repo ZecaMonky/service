@@ -71,6 +71,10 @@ app.use('/admin', require('./routes/admin'));
 app.use('/shop', require('./routes/shop'));
 app.use('/repair', require('./routes/repair'));
 
+// ВАЖНО: express.json() и express.urlencoded() должны идти после роутов с Multer!
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Middleware для логирования ошибок
 app.use((err, req, res, next) => {
     console.error('Ошибка:', err);
