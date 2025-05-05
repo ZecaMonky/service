@@ -41,7 +41,12 @@
                     
                     <div class="mb-3">
                         <label for="contactPhone" class="form-label">Контактный телефон</label>
-                        <input type="tel" class="form-control" id="contactPhone" name="contactPhone" required>
+                        <input type="tel" class="form-control phone-input" id="contactPhone" name="contactPhone" 
+                               pattern="^(\+7|8)[0-9]{10}$" 
+                               placeholder="+7 (999) 123-45-67" required>
+                        <div class="form-text">
+                            Введите номер телефона в формате: +7XXXXXXXXXX или 8XXXXXXXXXX
+                        </div>
                     </div>
                     
                     <div class="d-grid">
@@ -51,4 +56,31 @@
             </div>
         </div>
     </div>
-</div> 
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const phoneInput = document.getElementById('contactPhone');
+    const form = document.querySelector('form[action="/repair"]');
+    if (!phoneInput || !form) return;
+
+    phoneInput.addEventListener('input', function() {
+        let value = this.value.replace(/\D/g, '');
+        if (value.length > 0) {
+            if (value[0] === '8') value = '7' + value.slice(1);
+            if (value[0] !== '7') value = '7' + value;
+            value = '+' + value;
+        }
+        this.value = value;
+    });
+
+    form.addEventListener('submit', function(e) {
+        const phone = phoneInput.value.replace(/\D/g, '');
+        if (phone.length !== 11 || !/^[78]/.test(phone)) {
+            e.preventDefault();
+            alert('Пожалуйста, введите корректный номер телефона');
+            return false;
+        }
+    });
+});
+</script> 
