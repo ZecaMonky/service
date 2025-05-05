@@ -2,11 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { query, get, run } = require('../config/database');
 const { isAuthenticated } = require('../middleware/auth');
-const { isAuth } = require('../middleware/auth');
-const upload = require('../middleware/upload');
+const { upload } = require('../middleware/upload');
 
 // Страница заявок на ремонт
-router.get('/', isAuth, async (req, res) => {
+router.get('/', isAuthenticated, async (req, res) => {
     try {
         const result = await query(`
             SELECT r.*, u.name as user_name 
@@ -29,7 +28,7 @@ router.get('/', isAuth, async (req, res) => {
 });
 
 // Страница создания заявки
-router.get('/create', isAuth, (req, res) => {
+router.get('/create', isAuthenticated, (req, res) => {
     res.render('repair/create', {
         title: 'Создать заявку на ремонт',
         user: req.session.user
@@ -37,7 +36,7 @@ router.get('/create', isAuth, (req, res) => {
 });
 
 // Обработка создания заявки
-router.post('/create', isAuth, upload.single('photo'), async (req, res) => {
+router.post('/create', isAuthenticated, upload.single('photo'), async (req, res) => {
     try {
         const { device_type, model, problem_description } = req.body;
         const photo_url = req.file ? req.file.path : null;
@@ -57,7 +56,7 @@ router.post('/create', isAuth, upload.single('photo'), async (req, res) => {
 });
 
 // Страница просмотра заявки
-router.get('/:id', isAuth, async (req, res) => {
+router.get('/:id', isAuthenticated, async (req, res) => {
     try {
         const repair = await get(`
             SELECT r.*, u.name as user_name 
