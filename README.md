@@ -245,8 +245,8 @@ CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
 
 ## Контакты
 
-- Вопросы и предложения: [ваш email или github]
+- Вопросы и предложения: [zacamonky@gmail.com]
 
 ---
 
-Если нужно добавить ещё больше подробностей (например, примеры API, описание роутов, схемы E-R, примеры миграций, CI/CD и т.д.) — напишите, и я расширю README!
+
