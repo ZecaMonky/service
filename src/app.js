@@ -85,7 +85,27 @@ app.use((err, req, res, next) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Сервер запущен на порту ${PORT}`);
+// Перемещаем запуск сервера внутрь проверки подключения к БД
+pool.connect((err, client, release) => {
+    if (err) {
+        console.error('Ошибка подключения к базе данных:', err.stack);
+        // В продакшене, возможно, стоит завершить процесс:
+        // process.exit(1);
+    } else {
+        console.log('Подключение к базе данных успешно установлено');
+        client.query('SELECT NOW()', (err, result) => {
+            release(); // Вернуть клиента в пул
+            if (err) {
+                console.error('Ошибка выполнения тестового запроса:', err.stack);
+                // process.exit(1); // Выйти, если не удалось выполнить тестовый запрос
+            } else {
+                console.log('Тестовый запрос к базе данных выполнен успешно:', result.rows[0].now);
+
+                const PORT = process.env.PORT || 3000;
+                app.listen(PORT, () => {
+                    console.log(`Сервер запущен на порту ${PORT}`);
+                });
+            }
+        });
+    }
 }); 
