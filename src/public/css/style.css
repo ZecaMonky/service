@@ -649,3 +649,27 @@ footer {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
+
+.btn-social {
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #fff;
+    margin-right: 0.5rem;
+    background: #2563eb;
+    border: none;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+}
+.btn-social:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.2);
+}
+.btn-vk { background: #4c75a3; }
+.btn-tg { background: #229ed9; }
+.btn-wa { background: #25d366; }
+.btn-social:hover { opacity: 0.85; color: #fff; }
