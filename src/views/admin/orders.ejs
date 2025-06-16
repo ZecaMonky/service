@@ -10,6 +10,7 @@
                     <th>Сумма</th>
                     <th>Статус</th>
                     <th>Дата создания</th>
+                    <th>Комментарий</th>
                     <th>Действия</th>
                 </tr>
             </thead>
@@ -33,6 +34,7 @@
                             </span>
                         </td>
                         <td><%= new Date(order.created_at).toLocaleDateString() %></td>
+                        <td><%= order.comment || '-' %></td>
                         <td>
                             <div class="btn-group">
                                 <a href="/admin/orders/<%= order.id %>/edit" class="btn btn-sm btn-outline-primary">

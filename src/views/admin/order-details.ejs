@@ -38,6 +38,9 @@
 
                         <dt class="col-sm-4">Дата обновления</dt>
                         <dd class="col-sm-8"><%= new Date(order.updated_at).toLocaleString() %></dd>
+
+                        <dt class="col-sm-4">Комментарий</dt>
+                        <dd class="col-sm-8"><%= order.comment || '-' %></dd>
                     </dl>
                 </div>
             </div>
