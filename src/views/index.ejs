@@ -63,7 +63,7 @@
                         <img src="<%= product.image %>" class="card-img-top" alt="<%= product.name %>">
                         <div class="card-body">
                             <h3 class="card-title h5"><%= product.name %></h3>
-                            <p class="card-text"><%= product.description %></p>
+                            <p class="card-text"><%= product.description && product.description.length > 150 ? product.description.slice(0, 150) + '...' : product.description %></p>
                             <p class="card-text"><strong>Цена: <%= product.price %> ₽</strong></p>
                             <a href="/shop/product/<%= product.id %>" class="btn btn-primary">Подробнее</a>
                         </div>

@@ -47,7 +47,7 @@
                         <img src="<%= product.image %>" class="card-img-top" alt="<%= product.name %>">
                         <div class="card-body">
                             <h3 class="card-title h5"><%= product.name %></h3>
-                            <p class="card-text"><%= product.description %></p>
+                            <p class="card-text"><%= product.description && product.description.length > 150 ? product.description.slice(0, 150) + '...' : product.description %></p>
                             <p class="card-text"><strong>Цена: <%= product.price %> ₽</strong></p>
                             <% if (product.is_available) { %>
                                 <span class="badge bg-success">В наличии</span>

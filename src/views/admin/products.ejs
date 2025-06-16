@@ -80,7 +80,7 @@
         fetch(`/admin/products/${productId}/hidden`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ is_hidden: isHidden })
+            body: JSON.stringify({ is_hidden: !!isHidden })
         }).then(() => window.location.reload());
     }
 
@@ -88,7 +88,7 @@
         fetch(`/admin/products/${productId}/available`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ is_available: isAvailable })
+            body: JSON.stringify({ is_available: !!isAvailable })
         }).then(() => window.location.reload());
     }
 </script> 
