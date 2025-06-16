@@ -673,3 +673,22 @@ footer {
 .btn-tg { background: #229ed9; }
 .btn-wa { background: #25d366; }
 .btn-social:hover { opacity: 0.85; color: #fff; }
+
+.product-image-fixed {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    max-height: 240px;
+    object-fit: contain;
+    background: #fff;
+    display: block;
+    margin: 0 auto 1rem auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+@media (max-width: 576px) {
+    .product-image-fixed {
+        max-width: 100%;
+        max-height: 180px;
+    }
+}
