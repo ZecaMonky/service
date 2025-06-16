@@ -24,6 +24,15 @@
                 <label for="stock" class="form-label">Количество</label>
                 <input type="number" class="form-control" id="stock" name="stock" value="<%= product ? product.stock : '0' %>" required>
             </div>
+
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="is_hidden" name="is_hidden" <%= product && product.is_hidden ? 'checked' : '' %>>
+                <label class="form-check-label" for="is_hidden">Скрыть товар</label>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="is_available" name="is_available" <%= !product || product.is_available ? 'checked' : '' %>>
+                <label class="form-check-label" for="is_available">В наличии</label>
+            </div>
         </div>
 
         <div class="col-md-6">

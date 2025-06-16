@@ -71,7 +71,7 @@ router.post('/products', isAdmin, logUpload, upload.single('image'), handleUploa
         console.log('Файл не был загружен!');
     }
     try {
-        const { name, category, description, price, stock } = req.body;
+        const { name, category, description, price, stock, is_hidden, is_available } = req.body;
         let imagePath = null;
 
         if (req.file) {
@@ -83,8 +83,8 @@ router.post('/products', isAdmin, logUpload, upload.single('image'), handleUploa
         }
 
         await run(
-            'INSERT INTO products (name, category, description, price, stock, image) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-            [name, category, description, price, stock, imagePath]
+            'INSERT INTO products (name, category, description, price, stock, image, is_hidden, is_available) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
+            [name, category, description, price, stock, imagePath, is_hidden, is_available]
         );
         req.flash('success', 'Товар успешно добавлен');
         res.redirect('/admin/products');
@@ -111,7 +111,7 @@ router.post('/products/:id', isAdmin, upload.single('image'), handleUploadError,
         console.log('Файл не был загружен при обновлении!');
     }
     try {
-        const { name, category, description, price, stock } = req.body;
+        const { name, category, description, price, stock, is_hidden, is_available } = req.body;
         const productId = req.params.id;
         let imagePath = null;
 
@@ -127,8 +127,8 @@ router.post('/products/:id', isAdmin, upload.single('image'), handleUploadError,
         }
 
         await run(
-            'UPDATE products SET name = $1, category = $2, description = $3, price = $4, stock = $5, image = $6 WHERE id = $7',
-            [name, category, description, price, stock, imagePath, productId]
+            'UPDATE products SET name = $1, category = $2, description = $3, price = $4, stock = $5, image = $6, is_hidden = $7, is_available = $8 WHERE id = $9',
+            [name, category, description, price, stock, imagePath, is_hidden, is_available, productId]
         );
         req.flash('success', 'Товар успешно обновлен');
         res.redirect('/admin/products');
@@ -428,6 +428,26 @@ router.put('/repairs/:id/phone', isAdmin, async (req, res) => {
             success: false, 
             error: 'Ошибка при обновлении телефона' 
         });
+    }
+});
+
+// Обновление is_hidden
+router.post('/products/:id/hidden', isAdmin, async (req, res) => {
+    try {
+        await run('UPDATE products SET is_hidden = $1 WHERE id = $2', [req.body.is_hidden, req.params.id]);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false });
+    }
+});
+
+// Обновление is_available
+router.post('/products/:id/available', isAdmin, async (req, res) => {
+    try {
+        await run('UPDATE products SET is_available = $1 WHERE id = $2', [req.body.is_available, req.params.id]);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false });
     }
 });
 
