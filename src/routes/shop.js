@@ -89,9 +89,22 @@ router.get('/', async (req, res) => {
             }
         }
 
-        // Получаем общее количество товаров
-        const countQuery = queryStr.replace('SELECT *', 'SELECT COUNT(*) as count');
-        const countResult = await get(countQuery, params);
+        // Получаем общее количество товаров (только фильтры, без сортировки и лимитов)
+        let countQuery = 'SELECT COUNT(*) as count FROM products WHERE is_hidden = false';
+        const countParams = [];
+        if (category) {
+            countQuery += ` AND category = $${countParams.length + 1}`;
+            countParams.push(category);
+        }
+        if (minPrice) {
+            countQuery += ` AND price >= $${countParams.length + 1}`;
+            countParams.push(minPrice);
+        }
+        if (maxPrice) {
+            countQuery += ` AND price <= $${countParams.length + 1}`;
+            countParams.push(maxPrice);
+        }
+        const countResult = await get(countQuery, countParams);
         const totalItems = countResult.count;
         const totalPages = Math.ceil(totalItems / itemsPerPage);
 
