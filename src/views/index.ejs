@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Функция форматирования номера телефона
     function formatPhoneNumber(input) {
-        let value = input.value.replace(/\D/g, '');
+        let value = input.value.replace(/\D/g, '').slice(0, 11);
         
         if (value.length > 0) {
             if (value[0] === '8') {
