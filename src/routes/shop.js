@@ -7,27 +7,22 @@ const { isAuthenticated } = require('../middleware/auth');
 router.get('/cart', isAuthenticated, async (req, res) => {
     try {
         const cart = req.session.cart || [];
-        
-        // Получаем актуальные данные о товарах
+        let updatedCart = [];
         if (cart.length > 0) {
+            // Получаем актуальные данные о товарах
             const productIds = cart.map(item => item.product_id);
             const placeholders = productIds.map((_, i) => `$${i + 1}`).join(',');
             const result = await query(
                 `SELECT * FROM products WHERE id IN (${placeholders})`,
                 productIds
             );
-
-            // Получаем массив товаров из результата запроса
             const products = result.rows || [];
-
             // Удаляем скрытые товары из корзины
             const filteredCart = cart.filter(item => {
                 const product = products.find(p => p.id === item.product_id);
                 return product && !product.is_hidden;
             });
-
-            // Обновляем данные в корзине
-            const updatedCart = filteredCart.map(item => {
+            updatedCart = filteredCart.map(item => {
                 const product = products.find(p => p.id === item.product_id);
                 return {
                     ...item,
@@ -38,12 +33,11 @@ router.get('/cart', isAuthenticated, async (req, res) => {
                     is_available: product?.is_available
                 };
             });
-            req.session.cart = updatedCart;
         }
-        
+        req.session.cart = updatedCart;
         res.render('shop/cart', {
             title: 'Корзина',
-            cart: updatedCart || [],
+            cart: updatedCart,
             user: req.session.user
         });
     } catch (error) {
