@@ -32,11 +32,19 @@
         <!-- Сортировка -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Каталог товаров</h2>
+            <% function buildSortUrl(sortValue) {
+                let params = [];
+                if (selectedCategory) params.push('category=' + encodeURIComponent(selectedCategory));
+                if (minPrice) params.push('minPrice=' + encodeURIComponent(minPrice));
+                if (maxPrice) params.push('maxPrice=' + encodeURIComponent(maxPrice));
+                params.push('sort=' + sortValue);
+                return '/shop?' + params.join('&');
+            } %>
             <select class="form-select w-auto" onchange="window.location.href=this.value">
-                <option value="/shop?sort=price_asc" <%= sort === 'price_asc' ? 'selected' : '' %>>По цене (возр.)</option>
-                <option value="/shop?sort=price_desc" <%= sort === 'price_desc' ? 'selected' : '' %>>По цене (убыв.)</option>
-                <option value="/shop?sort=name_asc" <%= sort === 'name_asc' ? 'selected' : '' %>>По названию (А-Я)</option>
-                <option value="/shop?sort=name_desc" <%= sort === 'name_desc' ? 'selected' : '' %>>По названию (Я-А)</option>
+                <option value="<%= buildSortUrl('price_asc') %>" <%= sort === 'price_asc' ? 'selected' : '' %>>По цене (возр.)</option>
+                <option value="<%= buildSortUrl('price_desc') %>" <%= sort === 'price_desc' ? 'selected' : '' %>>По цене (убыв.)</option>
+                <option value="<%= buildSortUrl('name_asc') %>" <%= sort === 'name_asc' ? 'selected' : '' %>>По названию (А-Я)</option>
+                <option value="<%= buildSortUrl('name_desc') %>" <%= sort === 'name_desc' ? 'selected' : '' %>>По названию (Я-А)</option>
             </select>
         </div>
         <!-- Товары -->
