@@ -49,7 +49,12 @@
                             <h3 class="card-title h5"><%= product.name %></h3>
                             <p class="card-text"><%= product.description %></p>
                             <p class="card-text"><strong>Цена: <%= product.price %> ₽</strong></p>
-                            <a href="/shop/product/<%= product.id %>" class="btn btn-primary">Подробнее</a>
+                            <% if (product.is_available) { %>
+                                <span class="badge bg-success">В наличии</span>
+                            <% } else { %>
+                                <span class="badge bg-danger">Нет в наличии</span>
+                            <% } %>
+                            <a href="/shop/product/<%= product.id %>" class="btn btn-primary mt-2">Подробнее</a>
                         </div>
                     </div>
                 </div>

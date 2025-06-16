@@ -5,7 +5,7 @@ const db = require('../config/database');
 // Главная страница
 router.get('/', async (req, res) => {
     try {
-        const result = await db.query('SELECT * FROM products ORDER BY created_at DESC LIMIT 6');
+        const result = await db.query('SELECT * FROM products WHERE is_hidden = false ORDER BY created_at DESC LIMIT 6');
         
         res.render('index', {
             title: 'Главная',

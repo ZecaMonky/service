@@ -27,6 +27,9 @@
                                                     </div>
                                                     <div>
                                                         <h5 class="mb-1"><%= item.name %></h5>
+                                                        <% if (item.is_available === false) { %>
+                                                            <span class="badge bg-danger">Нет в наличии</span>
+                                                        <% } %>
                                                         <span class="badge rounded-pill bg-light text-dark"><%= item.category %></span>
                                                     </div>
                                                 </div>
@@ -82,9 +85,13 @@
                             <strong class="fs-4"><%= (cart.reduce((sum, item) => sum + item.price * item.quantity, 0)).toFixed(2) %> ₽</strong>
                         </div>
                         <div class="d-grid gap-2">
-                            <a href="/shop/checkout" class="btn btn-primary py-3">
+                            <% const hasUnavailable = cart.some(item => item.is_available === false); %>
+                            <a href="/shop/checkout" class="btn btn-primary py-3<%= hasUnavailable ? ' disabled' : '' %>" <%= hasUnavailable ? 'tabindex="-1" aria-disabled="true"' : '' %>>
                                 <i class="fas fa-check me-2"></i> Оформить заказ
                             </a>
+                            <% if (hasUnavailable) { %>
+                                <div class="alert alert-danger mt-2">В корзине есть товары, которых нет в наличии. Удалите их для оформления заказа.</div>
+                            <% } %>
                             <a href="/shop" class="btn btn-outline-secondary">
                                 <i class="fas fa-arrow-left me-2"></i> Продолжить покупки
                             </a>

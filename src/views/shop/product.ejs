@@ -7,13 +7,13 @@
         <p class="lead mb-4"><%= product.description %></p>
         <div class="mb-4">
             <h3 class="text-primary"><%= product.price %> ₽</h3>
-            <% if (product.stock > 0) { %>
+            <% if (product.is_available) { %>
                 <span class="badge bg-success">В наличии</span>
             <% } else { %>
                 <span class="badge bg-danger">Нет в наличии</span>
             <% } %>
         </div>
-        <% if (product.stock > 0) { %>
+        <% if (product.is_available) { %>
             <form action="/shop/cart/add" method="POST" class="mb-4">
                 <input type="hidden" name="productId" value="<%= product.id %>">
                 <div class="mb-3">

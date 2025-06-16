@@ -20,15 +20,22 @@ router.get('/cart', isAuthenticated, async (req, res) => {
             // Получаем массив товаров из результата запроса
             const products = result.rows || [];
 
+            // Удаляем скрытые товары из корзины
+            const filteredCart = cart.filter(item => {
+                const product = products.find(p => p.id === item.product_id);
+                return product && !product.is_hidden;
+            });
+
             // Обновляем данные в корзине
-            const updatedCart = cart.map(item => {
+            const updatedCart = filteredCart.map(item => {
                 const product = products.find(p => p.id === item.product_id);
                 return {
                     ...item,
                     name: product?.name || item.name,
                     price: product?.price || item.price,
                     image: product?.image || item.image,
-                    category: product?.category || item.category
+                    category: product?.category || item.category,
+                    is_available: product?.is_available
                 };
             });
             req.session.cart = updatedCart;
@@ -36,7 +43,7 @@ router.get('/cart', isAuthenticated, async (req, res) => {
         
         res.render('shop/cart', {
             title: 'Корзина',
-            cart: cart || [],
+            cart: updatedCart || [],
             user: req.session.user
         });
     } catch (error) {
@@ -53,7 +60,7 @@ router.get('/', async (req, res) => {
         const itemsPerPage = 9;
         const offset = (page - 1) * itemsPerPage;
         
-        let queryStr = 'SELECT * FROM products WHERE 1=1';
+        let queryStr = 'SELECT * FROM products WHERE is_hidden = false';
         const params = [];
         
         if (category) {
@@ -125,7 +132,7 @@ router.get('/product/:id', async (req, res) => {
     try {
         const product = await get('SELECT * FROM products WHERE id = $1', [req.params.id]);
         
-        if (!product) {
+        if (!product || product.is_hidden) {
             req.flash('error', 'Товар не найден');
             return res.redirect('/shop');
         }
